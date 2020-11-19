@@ -43,14 +43,13 @@ def get_qubit_hamiltonian(g, basis, charge=0, spin=1, qubit_transf='jw'):
     mol.basis = basis
     mol.spin = spin
     mol.symmetry = True
-    mol.max_memory = 1024
+    #mol.max_memory = 1024
     mol.build()
 
     rhf = scf.RHF(mol)
+    rhf.max_cycle = 5000
     rhf.kernel()
     pickle.dump(rhf, open("rhf.pkl", "wb"))
-
-    1/0
 
     cisolver = fci.FCI(mol, rhf.mo_coeff)
     cisolver.kernel()
