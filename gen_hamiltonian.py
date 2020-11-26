@@ -42,18 +42,11 @@ def get_qubit_hamiltonian(g, basis, charge=0, spin=1, qubit_transf='jw'):
     mol.atom = g
     mol.basis = basis
     mol.spin = spin
+    mol.charge = charge
     mol.symmetry = True
     mol.max_memory = 1024
     mol.build()
 
-    rhf = scf.RHF(mol)
-    rhf.kernel()
-    pickle.dump(rhf, open("rhf.pkl", "wb"))
-
-    1/0
-
-    cisolver = fci.FCI(mol, rhf.mo_coeff)
-    cisolver.kernel()
     print(mol)
 
     ham = mol.get_molecular_hamiltonian()
@@ -84,5 +77,5 @@ def remove_complex(H : QubitOperator, tiny=1e-8):
 if __name__ == "__main__":
     g = load_xyz("molecules/ICS.xyz")
     print(g)
-    H = get_qubit_hamiltonian(g, "sto-3g", charge=0, spin=4)
+    H = get_qubit_hamiltonian(g, "sto-3g", charge=-1, spin=3)
     print(H)
