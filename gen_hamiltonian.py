@@ -44,7 +44,7 @@ def get_qubit_hamiltonian(g, basis, charge=0, spin=1, qubit_transf='jw'):
     mol.spin = spin
     mol.charge = charge
     mol.symmetry = True
-    mol.max_memory = 1024
+    #mol.max_memory = 1024
     mol.build()
 
     print(mol)
