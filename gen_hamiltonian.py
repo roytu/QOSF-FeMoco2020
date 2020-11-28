@@ -3,11 +3,13 @@ import pickle
 import itertools
 import numpy as np
 import openfermion
+from time import time
 from pyscf import gto, scf, fci
 from copy import deepcopy
 from openfermion import QubitOperator
 from openfermion.hamiltonians import MolecularData
-from openfermionpyscf import run_pyscf
+#from openfermionpyscf import run_pyscf
+from run_pyscf_custom import run_pyscf
 from openfermion.transforms import get_fermion_operator, bravyi_kitaev, jordan_wigner
 from openfermion.utils import taper_off_qubits, commutator
 
@@ -38,20 +40,39 @@ def load_xyz(xyz_fname):
 
 def get_qubit_hamiltonian(g, basis, charge=0, spin=1, qubit_transf='jw'):
 
-    mol = gto.Mole()
-    mol.atom = g
-    mol.basis = basis
-    mol.spin = spin
-    mol.charge = charge
-    mol.symmetry = True
-    #mol.max_memory = 1024
-    mol.build()
+    ## Create OpenFermion molecule
+    #mol = gto.Mole()
+    #mol.atom = g
+    #mol.basis = basis
+    #mol.spin = spin
+    #mol.charge = charge
+    #mol.symmetry = False
+    ##mol.max_memory = 1024
+    #mol.build()
 
-    print(mol)
+    multiplicity = spin + 1  # spin here is 2S ?
+    mol = MolecularData(g, basis, multiplicity, charge)
 
+    # Convert to PySCF molecule and run SCF
+    print("Running run_pyscf...")
+    print(f"Time: {time()}")
+    print("=" * 20)
+    mol = run_pyscf(mol)
+
+    # Get Hamiltonian
+    print("Running get_molecular_hamiltonian...")
+    print(f"Time: {time()}")
+    print("=" * 20)
     ham = mol.get_molecular_hamiltonian()
-    print(ham)
+
+    print("Running get_fermion_operator...")
+    print(f"Time: {time()}")
+    print("=" * 20)
     hamf = get_fermion_operator(ham)
+
+    print(f"Running {qubit_transf}...")
+    print(f"Time: {time()}")
+    print("=" * 20)
 
     if qubit_transf == 'bk':
         hamq = bravyi_kitaev(hamf)
@@ -72,7 +93,6 @@ def remove_complex(H : QubitOperator, tiny=1e-8):
             val = np.real(val)
         real_h += QubitOperator(term=term, coefficient=val)
     return real_h
-
 
 if __name__ == "__main__":
     g = load_xyz("molecules/ICS.xyz")

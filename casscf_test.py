@@ -33,7 +33,7 @@ def casscf():
     mf = scf.ROHF(mol)
     mf.chkfile = 'rohf.chk'
     mf.init_guess = 'chkfile'
-    mf.max_cycle = 10000
+    mf.max_cycle = 1000
     mf.verbose = 4
     mf.kernel()
 
@@ -46,7 +46,7 @@ def casscf():
 
     mc = mcscf.CASSCF(mf, n_orbitals, n_electrons)
     mc.chkfile = f'casscf-{n_orbitals}-{n_electrons}.chk'
-    mc.init_guess = 'chkfile'
+    #mc.init_guess = 'chkfile'
     mc.verbose = 4
     energy = mc.kernel()
     print(energy)
