@@ -15,7 +15,7 @@ def build_femoco():
     mol.spin = 3
     mol.charge = -1
     mol.symmetry = True
-    mol.max_memory = 1024 * 14
+    mol.max_memory = 1024 * 4
     mol.verbose = 4
     mol.build()
 

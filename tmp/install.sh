@@ -33,6 +33,6 @@ conda install numpy
 conda install matplotlib
 conda install python=3.7.1
 conda install psi4 -c psi4
-python -m pip install --user openfermion  # Roy went to sleep here
+python -m pip install --user openfermion
 python -m pip install --user openfermionpyscf
 pip install qiskit

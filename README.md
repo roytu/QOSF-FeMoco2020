@@ -12,19 +12,16 @@ Project for the QOSF mentorship program investigating the FeMo cofactor of nitro
 * (11/15/2020) Added initial script to generate the Hamiltonian (see `gen_hamiltonian.py`)
 * (11/19/2020) Added results from initial attempt at evaluating the Hamiltonian (SCF Convergence Issue)
 * (11/25/2020) Added `casscf_test.py` to test CASSCF with ROHF. Added converged checkpoint file (`rohf.chk`).
+* (11/25/2020) Ran STO-3G, S=3/2, Q=-1 ROHF (results in npy branch)
 
-# Week 4
+# General notes
 
-This week, we wanted to prioritize the following:
+## Generating the Hamiltonian
 
-* Calculating the Hamiltonian for the FeMo cofactor (or a smaller molecule)
-* TODO forgot
+* Current Hamiltonian needs ~230-ish qubits
+* Too big for most NISQ computers, but can run on D-Wave if the Hamiltonian is quadratic
 
-# Generating the Hamiltonian
-
-TODO
-
-# Thorneley-Lowe Model
+## Thorneley-Lowe Model
 
 Molybdenum nitrogenase performs the following reaction:
 
@@ -38,3 +35,6 @@ The full mechanism for this is unknown, but an experimentally-supported schemati
 
 E0 is the resting state for FeMoco.  E4 is the Janus state which is ready to accept N2 to produce ammonia.  A lot of focus is on the structure of the E4 state.
 
+## Papers
+
+TODO
