@@ -12,7 +12,7 @@ from openfermion.hamiltonians import MolecularData
 from run_pyscf_custom import run_pyscf
 from openfermion.transforms import get_fermion_operator, bravyi_kitaev, jordan_wigner
 from openfermion.utils import taper_off_qubits, commutator
-from .util.mol import load_xyz
+from util.mol import load_xyz
 
 
 def get_qubit_hamiltonian(g, basis, charge=0, spin=1, qubit_transf='jw'):
@@ -29,6 +29,7 @@ def get_qubit_hamiltonian(g, basis, charge=0, spin=1, qubit_transf='jw'):
 
     multiplicity = spin + 1  # spin here is 2S ?
     mol = MolecularData(g, basis, multiplicity, charge)
+    #mol.load()
 
     # Convert to PySCF molecule and run SCF
     print("Running run_pyscf...")
@@ -36,11 +37,19 @@ def get_qubit_hamiltonian(g, basis, charge=0, spin=1, qubit_transf='jw'):
     print("=" * 20)
     mol = run_pyscf(mol)
 
+    # Freeze some orbitals?
+    occupied_indices = None
+    active_indices = None
+
+    import pdb; pdb.set_trace()
+
     # Get Hamiltonian
     print("Running get_molecular_hamiltonian...")
     print(f"Time: {time()}")
     print("=" * 20)
-    ham = mol.get_molecular_hamiltonian()
+    ham = mol.get_molecular_hamiltonian(
+            occupied_indices=occupied_indices,
+            active_indices=active_indices)
 
     print("Running get_fermion_operator...")
     print(f"Time: {time()}")

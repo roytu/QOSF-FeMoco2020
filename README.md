@@ -14,6 +14,7 @@ Project for the QOSF mentorship program investigating the FeMo cofactor of nitro
 * (11/25/2020) Added `casscf_test.py` to test CASSCF with ROHF. Added converged checkpoint file (`rohf.chk`).
 * (11/25/2020) Ran STO-3G, S=3/2, Q=-1 ROHF (results in npy branch)
 * (12/03/2020) Some ROHF runs and added Mulliken analysis results
+* (12/03/2020) Added Fermionic Hamiltonian with 183 frozen orbitals, 30 active orbitals (`jw_ham`)
 
 # General notes
 
