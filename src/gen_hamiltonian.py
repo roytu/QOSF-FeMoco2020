@@ -12,31 +12,8 @@ from openfermion.hamiltonians import MolecularData
 from run_pyscf_custom import run_pyscf
 from openfermion.transforms import get_fermion_operator, bravyi_kitaev, jordan_wigner
 from openfermion.utils import taper_off_qubits, commutator
+from .util.mol import load_xyz
 
-
-def load_xyz(xyz_fname):
-    """
-    Load a .xyz file into PySCF mol format
-
-    """
-
-    with open(xyz_fname, "r") as f:
-        lines = f.readlines()
-
-    # Remove header
-    lines = lines[2:]
-    output = []
-    for line in lines:
-        elems = line.split()
-
-        atom = elems[0].capitalize()
-        x = float(elems[1])
-        y = float(elems[2])
-        z = float(elems[3])
-
-        output.append([atom, [x, y, z]])
-
-    return output
 
 def get_qubit_hamiltonian(g, basis, charge=0, spin=1, qubit_transf='jw'):
 

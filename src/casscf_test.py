@@ -1,25 +1,10 @@
 
+import os
 import pyscf
 from pyscf import gto, scf, mcscf
-from gen_hamiltonian import load_xyz
 from time import time
 
-def build_femoco():
-    """ Returns the PySCF Mol object for Femoco """
-
-    g = load_xyz("molecules/ICS.xyz")
-
-    mol = gto.Mole()
-    mol.atom = g
-    mol.basis = "sto-3g"
-    mol.spin = 3
-    mol.charge = -1
-    mol.symmetry = True
-    mol.max_memory = 1024 * 4
-    mol.verbose = 4
-    mol.build()
-
-    return mol
+from util.mol import build_femoco
 
 def casscf():
     print("Building molecule...")
@@ -27,29 +12,57 @@ def casscf():
     print("=" * 20)
     mol = build_femoco()
 
-    print("Running ROHF...")
-    print(f"Time: {time()}")
-    print("=" * 20)
+    ####### RUN ROHF #######
     mf = scf.ROHF(mol)
-    mf.chkfile = 'rohf.chk'
-    mf.init_guess = 'chkfile'
-    mf.max_cycle = 1000
-    mf.verbose = 4
-    mf.kernel()
 
-    print("Running CASSCF...")
-    print(f"Time: {time()}")
-    print("=" * 20)
+    # Try to load ROHF object if it exists
+    chkfile_path = "../chkfiles/rohf.chk"
+    if os.path.exists(chkfile_path):
+        print(f"Found {chkfile_path}. Loaded.")
+        print("Running ROHF...")
+        print(f"Time: {time()}")
+        print("=" * 20)
+        mf.chkfile = chkfile_path
+        mf.init_guess = "chkfile"
+        mf.max_cycle = 0
+    else:
+        print(f"No {chkfile_path} found.")
+        print("Running ROHF...")
+        print(f"Time: {time()}")
+        print("=" * 20)
+        mf.chkfile = chkfile_path
+        mf.init_guess = "chkfile"
 
+    mf.scf()
+    mf.analyze()
+
+    ####### RUN CASSCF #######
     n_orbitals = 6
-    n_electrons = 6
+    n_electrons = 7
 
     mc = mcscf.CASSCF(mf, n_orbitals, n_electrons)
-    mc.chkfile = f'casscf-{n_orbitals}-{n_electrons}.chk'
-    #mc.init_guess = 'chkfile'
-    mc.verbose = 4
-    energy = mc.kernel()
-    print(energy)
+
+    chkfile_path = f'../chkfiles/casscf-{n_orbitals}-{n_electrons}.chk'
+
+    # Try to load CASSCF object if it exists
+    if os.path.exists(chkfile_path):
+        print(f"Found {chkfile_path}. Loaded.")
+        print("Running CASSCF...")
+        print(f"Time: {time()}")
+        print("=" * 20)
+        mc.chkfile = chkfile_path
+        mc.init_guess = "chkfile"
+        mc.max_cycle = 0
+    else:
+        print(f"No {chkfile_path} found.")
+        print("Running CASSCF...")
+        print(f"Time: {time()}")
+        print("=" * 20)
+        mc.chkfile = chkfile_path
+        mc.init_guess = "chkfile"
+
+    mc.kernel()
+    mc.analyze()
 
 if __name__ == "__main__":
     casscf()

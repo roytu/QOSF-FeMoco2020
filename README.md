@@ -13,6 +13,7 @@ Project for the QOSF mentorship program investigating the FeMo cofactor of nitro
 * (11/19/2020) Added results from initial attempt at evaluating the Hamiltonian (SCF Convergence Issue)
 * (11/25/2020) Added `casscf_test.py` to test CASSCF with ROHF. Added converged checkpoint file (`rohf.chk`).
 * (11/25/2020) Ran STO-3G, S=3/2, Q=-1 ROHF (results in npy branch)
+* (12/03/2020) Some ROHF runs and added Mulliken analysis results
 
 # General notes
 
@@ -36,5 +37,13 @@ The full mechanism for this is unknown, but an experimentally-supported schemati
 E0 is the resting state for FeMoco.  E4 is the Janus state which is ready to accept N2 to produce ammonia.  A lot of focus is on the structure of the E4 state.
 
 ## Papers
+
+TODO
+
+## Mulliken Analysis / Frozen Core Model
+
+TODO
+
+## QUBO
 
 TODO
