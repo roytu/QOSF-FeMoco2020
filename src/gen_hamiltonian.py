@@ -41,7 +41,12 @@ def get_qubit_hamiltonian(g, basis, charge=0, spin=1, qubit_transf='jw'):
     occupied_indices = None
     active_indices = None
 
-    import pdb; pdb.set_trace()
+    #import pdb; pdb.set_trace()
+
+    # Try:
+    #   occupied_indices = range(183)
+    #   active_indices = range(30)
+    # when it stops lagging
 
     # Get Hamiltonian
     print("Running get_molecular_hamiltonian...")
