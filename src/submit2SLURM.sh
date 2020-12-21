@@ -15,12 +15,12 @@
 
 #SBATCH -t 3:00:00
 #SBATCH -p bigmem
-#SBATCH --mem=128G
+#SBATCH --mem=512G
 #SBATCH -J QOSF
-#SBATCH -e slurm-%x-%j.err
-#SBATCH -o slurm-%x-%j.out
+##SBATCH -e slurm-%x-%j.err
+#SBATCH --output=slurm-%x-%j.out
 
-module load python/3.6.6
+module load python/3.6.6 gcc/8.3
 cd ~/scratch/QOSF-FeMoco2020/
 python3 ./src/gen_hamiltonian.py
 
