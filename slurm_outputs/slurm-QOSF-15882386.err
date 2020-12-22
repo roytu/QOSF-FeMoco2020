@@ -1,0 +1,40 @@
+module: unloading 'python/2.7.12'
+module: loading 'python/3.6.6'
+module: python: To use: module load mpi/openmpi_3.1.6_gcc for using mpi4py
+Traceback (most recent call last):
+  File "/users/mcho4/.local/lib/python3.6/site-packages/openfermion/hamiltonians/_molecular_data.py", line 574, in save
+    is not None else None))
+  File "/users/mcho4/.local/lib/python3.6/site-packages/h5py/_hl/group.py", line 148, in create_dataset
+    dsid = dataset.make_new_dset(group, shape, dtype, data, name, **kwds)
+  File "/users/mcho4/.local/lib/python3.6/site-packages/h5py/_hl/dataset.py", line 140, in make_new_dset
+    dset_id.write(h5s.ALL, h5s.ALL, data)
+  File "h5py/_objects.pyx", line 54, in h5py._objects.with_phil.wrapper
+  File "h5py/_objects.pyx", line 55, in h5py._objects.with_phil.wrapper
+  File "h5py/h5d.pyx", line 232, in h5py.h5d.DatasetID.write
+  File "h5py/_proxy.pyx", line 114, in h5py._proxy.dset_rw
+OSError: Can't write data (file write failed: time = Sun Dec 13 00:55:05 2020
+, filename = '844a1961-bf27-4199-a928-d2a3c5e82248.hdf5', file descriptor = 5, errno = 122, error message = 'Disk quota exceeded', buf = 0x14242740, total write size = 389048, bytes this sub-write = 389048, bytes actually written = 18446744073709551615, offset = 0)
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "./src/gen_hamiltonian.py", line 91, in <module>
+    H = get_qubit_hamiltonian(g, "sto-3g", charge=-1, spin=3)
+  File "./src/gen_hamiltonian.py", line 38, in get_qubit_hamiltonian
+    mol = run_pyscf(mol)
+  File "/gpfs/home/mcho4/QOSF-FeMoco2020/src/run_pyscf_custom.py", line 217, in run_pyscf
+    pyscf_molecular_data.save()
+  File "/users/mcho4/.local/lib/python3.6/site-packages/openfermion/hamiltonians/_molecular_data.py", line 632, in save
+    len(key_list) > 0 else False))
+  File "h5py/_objects.pyx", line 54, in h5py._objects.with_phil.wrapper
+  File "h5py/_objects.pyx", line 55, in h5py._objects.with_phil.wrapper
+  File "/users/mcho4/.local/lib/python3.6/site-packages/h5py/_hl/files.py", line 475, in __exit__
+    self.close()
+  File "/users/mcho4/.local/lib/python3.6/site-packages/h5py/_hl/files.py", line 453, in close
+    h5i.dec_ref(id_)
+  File "h5py/_objects.pyx", line 54, in h5py._objects.with_phil.wrapper
+  File "h5py/_objects.pyx", line 55, in h5py._objects.with_phil.wrapper
+  File "h5py/h5i.pyx", line 153, in h5py.h5i.dec_ref
+RuntimeError: Can't decrement id ref count (file write failed: time = Sun Dec 13 00:55:05 2020
+, filename = '844a1961-bf27-4199-a928-d2a3c5e82248.hdf5', file descriptor = 5, errno = 122, error message = 'Disk quota exceeded', buf = 0x7cef990, total write size = 371183, bytes this sub-write = 371183, bytes actually written = 18446744073709551615, offset = 0)
+/var/spool/slurmd/job15882386/slurm_script: line 25: 287830 Segmentation fault      python3 ./src/gen_hamiltonian.py

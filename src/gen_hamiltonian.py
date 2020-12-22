@@ -44,8 +44,8 @@ def get_qubit_hamiltonian(g, basis, charge=0, spin=1, qubit_transf='jw'):
     #import pdb; pdb.set_trace()
 
     # Try:
-    #   occupied_indices = range(183)
-    #   active_indices = range(30)
+    occupied_indices = range(183)
+    active_indices = range(15)
     # when it stops lagging
 
     # Get Hamiltonian
