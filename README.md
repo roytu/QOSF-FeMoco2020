@@ -15,6 +15,17 @@ Project for the QOSF mentorship program investigating the FeMo cofactor of nitro
 * (11/25/2020) Ran STO-3G, S=3/2, Q=-1 ROHF (results in npy branch)
 * (12/03/2020) Some ROHF runs and added Mulliken analysis results
 * (12/03/2020) Added Fermionic Hamiltonian with 183 frozen orbitals, 30 active orbitals (`jw_ham`)
+* (12/21/2020) Added `hamiltonians/hamq_occ183_act5_jw_fin`, generated with:
+
+```
+hamf_occ183_act5 = get_fermion_operator(ham_occ183_act5)
+hamq_occ183_act5_jw = jordan_wigner(hamf_occ183_act5)
+hamq_occ183_act5_jw_fin = remove_complex(hamq_occ183_act5_jw)
+x = str(hamq_occ183_act5_jw_fin)
+x = hamq_occ183_act5_jw_fin
+y = str(x)
+open("hamq_occ183_act5_jw_fin", "w").write(y)
+```
 
 # General notes
 
