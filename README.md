@@ -27,6 +27,7 @@ x = hamq_occ183_act5_jw_fin
 y = str(x)
 open("hamq_occ183_act5_jw_fin", "w").write(y)
 ```
+* (12/21/2020) Trying to rewrite code in qiskit/pyscf. Added `src/gen_hamiltonian_qiskit.py`
 
 # General notes
 
