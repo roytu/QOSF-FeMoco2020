@@ -38,15 +38,8 @@ def get_qubit_hamiltonian(g, basis, charge=0, spin=1, qubit_transf='jw'):
     mol = run_pyscf(mol)
 
     # Freeze some orbitals?
-    occupied_indices = None
-    active_indices = None
-
-    #import pdb; pdb.set_trace()
-
-    # Try:
     occupied_indices = range(183)
-    active_indices = range(15)
-    # when it stops lagging
+    active_indices = range(183, 183+5)
 
     # Get Hamiltonian
     print("Running get_molecular_hamiltonian...")
@@ -55,6 +48,8 @@ def get_qubit_hamiltonian(g, basis, charge=0, spin=1, qubit_transf='jw'):
     ham = mol.get_molecular_hamiltonian(
             occupied_indices=occupied_indices,
             active_indices=active_indices)
+
+    import pdb; pdb.set_trace()
 
     print("Running get_fermion_operator...")
     print(f"Time: {time()}")
