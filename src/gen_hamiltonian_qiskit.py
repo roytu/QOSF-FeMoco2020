@@ -1,11 +1,14 @@
 
 import os
+import sys
+import numpy as np
 from qiskit.chemistry import FermionicOperator
 from qiskit.chemistry import QMolecule
 from qiskit.chemistry.drivers import PySCFDriver, UnitsType
 from qiskit.aqua.operators import Z2Symmetries
 from util.mol import load_xyz
 from qiskit.chemistry.core import Hamiltonian, TransformationType, QubitMappingType
+from qiskit.chemistry.transformations import FermionicTransformation
 
 import logging
 logging.basicConfig()
@@ -27,14 +30,17 @@ def convert_g_to_str(g):
     return "; ".join(results)
 
 #g = load_xyz("molecules/ICS.xyz")
-g = load_xyz("molecules/ICS-min.xyz")
+#g = load_xyz("molecules/ICS-min.xyz")
+g = load_xyz("molecules/LiH.xyz")
 
 # --- Create PySCF Driver and run ---
 
 driver = PySCFDriver(atom=convert_g_to_str(g),
                      unit=UnitsType.ANGSTROM,
-                     charge=-1,
-                     spin=3,
+                     #charge=-1,
+                     #spin=3,
+                     charge=0,
+                     spin=0,
                      max_cycle=5000,
                      max_memory=1024 * 128,
                      basis='sto3g'
@@ -44,7 +50,8 @@ driver = PySCFDriver(atom=convert_g_to_str(g),
 #                     basis='sto3g')
                      
 #FILENAME = "hdf5_files/femoco_sto3g_(-1,3).hdf5"
-FILENAME = "hdf5_files/femoco_nosulfer_sto3g_(-1,3).hdf5"
+#FILENAME = "hdf5_files/femoco_nosulfer_sto3g_(-1,3).hdf5"
+FILENAME = "hdf5_files/lih_sto3g_(0,0).hdf5"
 #FILENAME = "hdf5_files/hydrogen.hdf5"
 
 if os.path.exists(FILENAME):
@@ -57,22 +64,71 @@ else:
     molecule = driver.run()
     molecule.save(FILENAME)
 
-import pdb; pdb.set_trace()
 print("Loading 1 body integrals...")
 one_body_integrals = molecule.one_body_integrals
+#np.save("results/old/lih_1d.npy", one_body_integrals)
+np.save("results/new/lih_1d.npy", one_body_integrals)
 
-import pdb; pdb.set_trace()
 print("Loading 2 body integrals...")
 two_body_integrals = molecule.two_body_integrals
+np.save("results/new/lih_2d.npy", two_body_integrals)
 
-import pdb; pdb.set_trace()
+#print("Loading FermionicOperator...")
+#ferm_op = FermionicOperator(
+#        h1=one_body_integrals,
+#        h2=two_body_integrals
+#)
+#print("Loaded FermionicOperator")
 
-print("Loading FermionicOperator...")
-ferm_op = FermionicOperator(
-        h1=one_body_integrals,
-        h2=two_body_integrals
-)
-print("Loaded FermionicOperator")
+#num_particles = molecule.num_alpha + molecule.num_beta
+#num_spin_orbitals = molecule.num_orbitals * 2
+
+#core = FermionicTransformation(
+#    transformation=TransformationType.FULL,
+#    qubit_mapping=QubitMappingType.PARITY, 
+#    two_qubit_reduction=False,
+#    orbital_reduction=range(0, 1),
+#    freeze_core=True)
+#qubit_op, aux_ops = core.transform(driver)
+#sys.exit(0)
+
+print("Start Hamiltonian Reduction Procedure")
+freeze_list = range(0, 1)
+remove_list = range(5, 6)
+map_type = 'parity' # parity, jordan_wigner, or bravyi_kitaev
+# Evaluate particle numbers
+num_particles = molecule.num_alpha + molecule.num_beta
+num_spin_orbitals = molecule.num_orbitals * 2 # TODO: treat UHF/ROHF later
+# Build qubit operator (full)
+fermop = FermionicOperator(h1 = molecule.one_body_integrals, h2 = molecule.two_body_integrals)
+# Reduce
+fermop, energy_shift = fermop.fermion_mode_freezing(freeze_list)
+num_spin_orbitals -= len(freeze_list)
+num_particles -= len(freeze_list)
+fermop = fermop.fermion_mode_elimination(remove_list)
+num_spin_orbitals -= len(remove_list)
+qubitop = fermop.mapping('parity')
+qubitop = Z2Symmetries.two_qubit_reduction(qubitop, num_particles)
+
+# ETC ETC OH GOD
+qubit_op_str = qubitop.print_details()
+open("results/new/qubitop1.txt", "w").write(qubit_op_str)
+sys.exit(0)
+#qubitop.chop(10**-10)
+## Calculate shift
+#shift = energy_shift + nuclear_repulsion_energy
+
+
+ 
+# Build the qubit operator, which is the input to the VQE algorithm in Aqua
+
+map_type = 'PARITY'
+qubit_op = ferm_op.mapping(map_type)
+qubit_op = Z2Symmetries.two_qubit_reduction(qubit_op, num_particles)
+num_qubits = qubit_op.num_qubits
+sys.exit(0)
+
+
 
 import pdb; pdb.set_trace()
 
