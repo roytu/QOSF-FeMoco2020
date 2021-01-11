@@ -121,6 +121,47 @@ class QMolecule:
         """ Returns two body electron integrals. """
         return QMolecule.twoe_to_spin(self.mo_eri_ints, self.mo_eri_ints_bb, self.mo_eri_ints_ba)
 
+    def two_body_integral_precompute(self):
+        """ Precompute stuff for two_body_integral_single() """
+        self.ints_aa = numpy.einsum('ijkl->ljik', self.mo_eri_ints)
+
+        if self.mo_eri_ints_bb is None or self.mo_eri_ints_ba is None:
+            self.ints_bb = self.ints_ba = self.ints_ab = self.ints_aa
+        else:
+            self.ints_bb = numpy.einsum('ijkl->ljik', self.mo_eri_ints_bb)
+            self.ints_ba = numpy.einsum('ijkl->ljik', self.mo_eri_ints_ba)
+            self.ints_ab = numpy.einsum('ijkl->ljik', self.mo_eri_ints_ba.transpose())
+
+    def two_body_integral_single(self, p, q, r, s):
+        """ Returns a single point of the two body integral """
+        threshold = 1E-12
+
+        # The number of spin orbitals is twice the number of orbitals
+        norbs = self.mo_eri_ints.shape[0]
+        nspin_orbs = 2*norbs
+
+        # Two electron terms
+        spinp = int(p/norbs)
+        spinq = int(q/norbs)
+        spinr = int(r/norbs)
+        spins = int(s/norbs)
+        if spinp != spins:
+            return 0
+        if spinq != spinr:
+            return 0
+        if spinp == 0:
+            ints = self.ints_aa if spinq == 0 else self.ints_ba
+        else:
+            ints = self.ints_ab if spinq == 0 else self.ints_bb
+        orbp = int(p % norbs)
+        orbq = int(q % norbs)
+        orbr = int(r % norbs)
+        orbs = int(s % norbs)
+        if abs(ints[orbp, orbq, orbr, orbs]) > threshold:
+            return -0.5*ints[orbp, orbq, orbr, orbs]
+        else:
+            return 0
+
     def has_dipole_integrals(self):
         """ Check if dipole integrals are present. """
         return self.x_dip_mo_ints is not None and \

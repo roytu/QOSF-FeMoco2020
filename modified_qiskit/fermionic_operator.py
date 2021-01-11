@@ -82,7 +82,8 @@ class FermionicOperator:
         """
         self._h1 = h1
         if h2 is None:
-            h2 = np.zeros((h1.shape[0], h1.shape[0], h1.shape[0], h1.shape[0]), dtype=h1.dtype)
+            #h2 = np.zeros((h1.shape[0], h1.shape[0], h1.shape[0], h1.shape[0]), dtype=h1.dtype)
+            h2 = None
         self._h2 = h2
         self._ph_trans_shift = ph_trans_shift
         self._modes = self._h1.shape[0]
@@ -714,10 +715,10 @@ class FermionicOperator:
 
         # ---- Calculate integrals ----
         h1 = molecule.one_body_integrals
-        h2 = molecule.two_body_integrals
+        #h2 = molecule.two_body_integrals
 
         # ---- Full thing (probably remove) ----
-        fermop = FermionicOperator(h1=h1, h2=h2)
+        fermop = FermionicOperator(h1=h1)
 
         # ---- Freezing ----
         freeze_list = np.sort(freeze_list)
@@ -730,19 +731,25 @@ class FermionicOperator:
         #h2_new = np.zeros((n_modes_new, n_modes_new, n_modes_new, n_modes_new))
         h2_new = defaultdict(float)
 
+        # Precomputation step
+        molecule.two_body_integral_precompute()
+        def get_h2(i, j, l, k):
+            """ Get a single point of the two_body_integrals tensor """
+            return molecule.two_body_integral_single(i, j, l, k)
+
         energy_shift = 0.0
         #if np.count_nonzero(fermop._h2) > 0:
-        if len(fermop._h2.keys()) > 0:
+        #if len(fermop._h2.keys()) > 0:
+        if True:
             # First simplify h2 and renormalize original h1
 
             # Everything is non-frozen
             for __i, __l in itertools.product(nonfrozen_list, repeat=2):
                 for __j, __k in itertools.product(nonfrozen_list, repeat=2):
-                    h2_ijlk = fermop._h2[__i, __j, __l, __k]
                     h2_new[(__i - np.where(freeze_list < __i)[0].size,
                            __j - np.where(freeze_list < __j)[0].size,
                            __l - np.where(freeze_list < __l)[0].size,
-                           __k - np.where(freeze_list < __k)[0].size)] = h2_ijlk
+                           __k - np.where(freeze_list < __k)[0].size)] = get_h2(__i, __j, __l, __k)
 
             # Everything is frozen
             for __i, __l in itertools.product(freeze_list, repeat=2):
@@ -751,8 +758,8 @@ class FermionicOperator:
                 if __i == __l:
                     continue
 
-                energy_shift -= fermop._h2[__i, __l, __l, __i]
-                energy_shift += fermop._h2[__i, __i, __l, __l]
+                energy_shift -= get_h2(__i, __l, __l, __i)
+                energy_shift += get_h2(__i, __i, __l, __l)
 
             ## i == k, i frozen, j not frozen, l not frozen, k frozen: h1[l, j] -= h2[ijlk]
             #for __j, __l in itertools.product(nonfrozen_list, repeat=2):
@@ -785,10 +792,10 @@ class FermionicOperator:
 
             for x, y in itertools.product(nonfrozen_list, repeat=2):
                 for z in freeze_list:
-                    h_1[x, y] -= fermop._h2[z, x, y, z]
-                    h_1[x, y] += fermop._h2[z, z, x, y]
-                    h_1[x, y] += fermop._h2[x, y, z, z]
-                    h_1[x, y] -= fermop._h2[x, z, z, y]
+                    h_1[x, y] -= get_h2(z, x, y, z)
+                    h_1[x, y] += get_h2(z, z, x, y)
+                    h_1[x, y] += get_h2(x, y, z, z)
+                    h_1[x, y] -= get_h2(x, z, z, y)
 
             # Else
             #for __i, __j, __l, __k in itertools.product(range(n_modes_old), repeat=4):
