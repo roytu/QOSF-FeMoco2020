@@ -29,18 +29,18 @@ def convert_g_to_str(g):
 
     return "; ".join(results)
 
-#g = load_xyz("molecules/ICS.xyz")
+g = load_xyz("molecules/ICS.xyz")
 #g = load_xyz("molecules/ICS-min.xyz")
-g = load_xyz("molecules/LiH.xyz")
+#g = load_xyz("molecules/LiH.xyz")
 
 # --- Create PySCF Driver and run ---
 
 driver = PySCFDriver(atom=convert_g_to_str(g),
                      unit=UnitsType.ANGSTROM,
-                     #charge=-1,
-                     #spin=3,
-                     charge=0,
-                     spin=0,
+                     charge=-1,
+                     spin=3,
+                     #charge=0,
+                     #spin=0,
                      max_cycle=5000,
                      max_memory=1024 * 128,
                      basis='sto3g'
@@ -49,9 +49,9 @@ driver = PySCFDriver(atom=convert_g_to_str(g),
 #                     unit=UnitsType.ANGSTROM,
 #                     basis='sto3g')
                      
-#FILENAME = "hdf5_files/femoco_sto3g_(-1,3).hdf5"
+FILENAME = "hdf5_files/femoco_sto3g_(-1,3).hdf5"
 #FILENAME = "hdf5_files/femoco_nosulfer_sto3g_(-1,3).hdf5"
-FILENAME = "hdf5_files/lih_sto3g_(0,0).hdf5"
+#FILENAME = "hdf5_files/lih_sto3g_(0,0).hdf5"
 #FILENAME = "hdf5_files/hydrogen.hdf5"
 
 if os.path.exists(FILENAME):
@@ -64,14 +64,14 @@ else:
     molecule = driver.run()
     molecule.save(FILENAME)
 
-print("Loading 1 body integrals...")
-one_body_integrals = molecule.one_body_integrals
-#np.save("results/old/lih_1d.npy", one_body_integrals)
-np.save("results/new/lih_1d.npy", one_body_integrals)
-
-print("Loading 2 body integrals...")
-two_body_integrals = molecule.two_body_integrals
-np.save("results/new/lih_2d.npy", two_body_integrals)
+#print("Loading 1 body integrals...")
+#one_body_integrals = molecule.one_body_integrals
+##np.save("results/old/lih_1d.npy", one_body_integrals)
+#np.save("results/new/lih_1d.npy", one_body_integrals)
+#
+#print("Loading 2 body integrals...")
+#two_body_integrals = molecule.two_body_integrals
+#np.save("results/new/lih_2d.npy", two_body_integrals)
 
 #print("Loading FermionicOperator...")
 #ferm_op = FermionicOperator(
@@ -93,8 +93,10 @@ np.save("results/new/lih_2d.npy", two_body_integrals)
 #sys.exit(0)
 
 print("Start Hamiltonian Reduction Procedure")
-freeze_list = range(0, 1)
-remove_list = range(5, 6)
+#freeze_list = range(0, 1)
+#remove_list = range(5, 6)
+freeze_list = range(184)
+remove_list = range(190, 239)
 map_type = 'parity' # parity, jordan_wigner, or bravyi_kitaev
 
 # Evaluate particle numbers
@@ -131,11 +133,17 @@ else:  # New
 	num_spin_orbitals -= len(remove_list)
 
 	# Generate qubit op
+	import pdb; pdb.set_trace()
 	qubitop = fermop.mapping('parity')
 	qubitop = Z2Symmetries.two_qubit_reduction(qubitop, num_particles)
+	import pdb; pdb.set_trace()
+
+	# Save operator
+	qubitop.to_file("results/new/femoco.qubitop")
 
 	qubit_op_str = qubitop.print_details()
-	open("results/new/qubitop1.txt", "w").write(qubit_op_str)
+	#open("results/new/qubitop1.txt", "w").write(qubit_op_str)
+	open("results/new/qubitop_femoco.txt", "w").write(qubit_op_str)
 
 # ETC ETC OH GOD
 sys.exit(0)
