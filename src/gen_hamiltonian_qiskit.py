@@ -96,23 +96,48 @@ print("Start Hamiltonian Reduction Procedure")
 freeze_list = range(0, 1)
 remove_list = range(5, 6)
 map_type = 'parity' # parity, jordan_wigner, or bravyi_kitaev
+
 # Evaluate particle numbers
 num_particles = molecule.num_alpha + molecule.num_beta
 num_spin_orbitals = molecule.num_orbitals * 2 # TODO: treat UHF/ROHF later
-# Build qubit operator (full)
-fermop = FermionicOperator(h1 = molecule.one_body_integrals, h2 = molecule.two_body_integrals)
-# Reduce
-fermop, energy_shift = fermop.fermion_mode_freezing(freeze_list)
-num_spin_orbitals -= len(freeze_list)
-num_particles -= len(freeze_list)
-fermop = fermop.fermion_mode_elimination(remove_list)
-num_spin_orbitals -= len(remove_list)
-qubitop = fermop.mapping('parity')
-qubitop = Z2Symmetries.two_qubit_reduction(qubitop, num_particles)
+
+if False:  # Old
+	# Build qubit operator (full)
+	fermop = FermionicOperator(h1 = molecule.one_body_integrals, h2 = molecule.two_body_integrals)
+
+	# Freeze
+	fermop, energy_shift = fermop.fermion_mode_freezing(freeze_list)
+
+	# Remove
+	fermop = fermop.fermion_mode_elimination(remove_list)
+
+	# Update variables
+	num_spin_orbitals -= len(freeze_list)
+	num_particles -= len(freeze_list)
+	num_spin_orbitals -= len(remove_list)
+	
+	# Generate qubit op
+	qubitop = fermop.mapping('parity')
+	qubitop = Z2Symmetries.two_qubit_reduction(qubitop, num_particles)
+
+	qubit_op_str = qubitop.print_details()
+	open("results/old/qubitop1.txt", "w").write(qubit_op_str)
+else:  # New
+	fermop, energy_shift = FermionicOperator.construct_operator(molecule, freeze_list, remove_list)
+
+	# Update variables
+	num_spin_orbitals -= len(freeze_list)
+	num_particles -= len(freeze_list)
+	num_spin_orbitals -= len(remove_list)
+
+	# Generate qubit op
+	qubitop = fermop.mapping('parity')
+	qubitop = Z2Symmetries.two_qubit_reduction(qubitop, num_particles)
+
+	qubit_op_str = qubitop.print_details()
+	open("results/new/qubitop1.txt", "w").write(qubit_op_str)
 
 # ETC ETC OH GOD
-qubit_op_str = qubitop.print_details()
-open("results/new/qubitop1.txt", "w").write(qubit_op_str)
 sys.exit(0)
 #qubitop.chop(10**-10)
 ## Calculate shift

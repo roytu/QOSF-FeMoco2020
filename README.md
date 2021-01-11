@@ -29,6 +29,16 @@ open("hamq_occ183_act5_jw_fin", "w").write(y)
 ```
 * (12/21/2020) Trying to rewrite code in qiskit/pyscf. Added `src/gen_hamiltonian_qiskit.py`
 
+* (01/01/2020 - 01/11/2020) Rewriting qiskit (TODO back-update this)
+* (01/11/2020) (develop-roy) Qiskit rewrite to reduce O((M+N)^4) freezing code to O(M^2 N), where
+
+```
+M = num. of non-frozen orbitals
+N = num. of frozen orbitals
+```
+
+This should lead to a drastic reduction in memory and run-time requirements.  For FeMoco, we are trying values on the order of M=10, N=200.  This reduces the number of floating points from `(200+10)^4 = 1,944,810,000` to (10^2) * 200 = 20,000`
+
 # General notes
 
 ## Generating the Hamiltonian

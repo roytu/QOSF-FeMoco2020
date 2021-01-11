@@ -707,6 +707,141 @@ class FermionicOperator:
 
         return FermionicOperator(h1_new, h2_new), energy_shift
 
+    @staticmethod
+    def construct_operator(molecule, freeze_list, remove_list):
+        """ Returns a reduced fermionic operator """
+        # ROY INJECT
+
+        # ---- Calculate integrals ----
+        h1 = molecule.one_body_integrals
+        h2 = molecule.two_body_integrals
+
+        # ---- Full thing (probably remove) ----
+        fermop = FermionicOperator(h1=h1, h2=h2)
+
+        # ---- Freezing ----
+        freeze_list = np.sort(freeze_list)
+
+        n_modes_old = fermop._modes
+        n_modes_new = n_modes_old - freeze_list.size
+        nonfrozen_list = np.setdiff1d(np.arange(n_modes_old), freeze_list)
+
+        h_1 = fermop._h1.copy()
+        #h2_new = np.zeros((n_modes_new, n_modes_new, n_modes_new, n_modes_new))
+        h2_new = defaultdict(float)
+
+        energy_shift = 0.0
+        #if np.count_nonzero(fermop._h2) > 0:
+        if len(fermop._h2.keys()) > 0:
+            # First simplify h2 and renormalize original h1
+
+            # Everything is non-frozen
+            for __i, __l in itertools.product(nonfrozen_list, repeat=2):
+                for __j, __k in itertools.product(nonfrozen_list, repeat=2):
+                    h2_ijlk = fermop._h2[__i, __j, __l, __k]
+                    h2_new[(__i - np.where(freeze_list < __i)[0].size,
+                           __j - np.where(freeze_list < __j)[0].size,
+                           __l - np.where(freeze_list < __l)[0].size,
+                           __k - np.where(freeze_list < __k)[0].size)] = h2_ijlk
+
+            # Everything is frozen
+            for __i, __l in itertools.product(freeze_list, repeat=2):
+                # i == k, j == l, i != l:   energy -= h[ijlk]
+                # i == j, k == l, i != l:   energy += h[ijlk]
+                if __i == __l:
+                    continue
+
+                energy_shift -= fermop._h2[__i, __l, __l, __i]
+                energy_shift += fermop._h2[__i, __i, __l, __l]
+
+            ## i == k, i frozen, j not frozen, l not frozen, k frozen: h1[l, j] -= h2[ijlk]
+            #for __j, __l in itertools.product(nonfrozen_list, repeat=2):
+            #    for x in freeze_list:
+            #        if x == __l:
+            #            continue
+            #        h_1[__l, __j] -= fermop._h2[x, __j, __l, x]
+
+            ## i == j, i frozen, j frozen, l not frozen, k not frozen: h1[l, k] += h2[ijlk]
+            #for __l, __k in itertools.product(nonfrozen_list, repeat=2):
+            #    for x in freeze_list:
+            #        if x == __l:
+            #            continue
+            #        h_1[__l, __k] += fermop._h2[x, x, __l, __k]
+
+            ## l == k, i not frozen, j not frozen, l frozen, k is frozen: h1[i, j] += h2[ijlk]
+            #for __i, __j in itertools.product(nonfrozen_list, repeat=2):
+            #    for x in freeze_list:
+            #        if x == __i:
+            #            continue
+            #        h_1[__i, __j] += fermop._h2[__i, __j, x, x]
+
+            ## l == j, i not frozen, j frozen, l frozen, k is not frozen: h1[i, k] -= h2[ijlk]
+            #for __i, __k in itertools.product(nonfrozen_list, repeat=2):
+            #    for x in freeze_list:
+            #        if x == __i:
+            #            continue
+            #        h_1[__i, __k] -= fermop._h2[__i, x, x, __k]
+
+
+            for x, y in itertools.product(nonfrozen_list, repeat=2):
+                for z in freeze_list:
+                    h_1[x, y] -= fermop._h2[z, x, y, z]
+                    h_1[x, y] += fermop._h2[z, z, x, y]
+                    h_1[x, y] += fermop._h2[x, y, z, z]
+                    h_1[x, y] -= fermop._h2[x, z, z, y]
+
+            # Else
+            #for __i, __j, __l, __k in itertools.product(range(n_modes_old), repeat=4):
+            #    if (__l not in freeze_list and __j not in freeze_list) and __i == __k and __i in freeze_list:
+            #            # i == k, i frozen, j not frozen, l not frozen, k frozen: h1[l, j] -= h2[ijlk]
+            #            h_1[__l, __j] -= fermop._h2[__i, __j, __l, __k]
+
+            #    if (__l not in freeze_list and __k not in freeze_list) and __i == __j and __i in freeze_list:
+            #            # i == j, i frozen, j frozen, l not frozen, k not frozen: h1[l, k] += h2[ijlk]
+            #            h_1[__l, __k] += fermop._h2[__i, __j, __l, __k]
+
+            #    if (__i not in freeze_list and __j not in freeze_list) and __l == __k and __l in freeze_list:
+            #            # l == k, i not frozen, j not frozen, l frozen, k is frozen: h1[i, j] += h2[ijlk]
+            #            h_1[__i, __j] += fermop._h2[__i, __j, __l, __k]
+
+            #    if (__i not in freeze_list and __k not in freeze_list) and __l == __j and __l in freeze_list:
+            #            # l == j, i not frozen, j frozen, l frozen, k is not frozen: h1[i, k] -= h2[ijlk]
+            #            h_1[__i, __k] -= fermop._h2[__i, __j, __l, __k]
+
+        # now simplify h1
+        energy_shift += np.sum(np.diagonal(h_1)[freeze_list])
+        h1_id_i, h1_id_j = np.meshgrid(nonfrozen_list, nonfrozen_list, indexing='ij')
+        h1_new = h_1[h1_id_i, h1_id_j]
+
+        fermop = FermionicOperator(h1_new, h2_new)
+
+        # ---- ELIMINATION ----
+        fermion_mode_array = remove_list
+        fermion_mode_array = np.sort(fermion_mode_array)
+        n_modes_old = fermop._modes
+        n_modes_new = n_modes_old - fermion_mode_array.size
+        nonfrozen_list = np.setdiff1d(np.arange(n_modes_old), fermion_mode_array)
+        h1_id_i, h1_id_j = np.meshgrid(nonfrozen_list, nonfrozen_list, indexing='ij')
+        h1_new = fermop._h1[h1_id_i, h1_id_j].copy()
+        if np.count_nonzero(fermop._h2) > 0:
+            #h2_id_i, h2_id_j, h2_id_k, h2_id_l = np.meshgrid(
+            #    nonfrozen_list, nonfrozen_list, nonfrozen_list, nonfrozen_list, indexing='ij')
+            #h2_new = fermop._h2[h2_id_i, h2_id_j, h2_id_k, h2_id_l].copy()
+            #h2_new = defaultdict(float)
+            #h2_new = np.zeros([nonfrozen_list, nonfrozen_list, nonfrozen_list, nonfrozen_list])
+            h2_new = np.zeros((n_modes_new, n_modes_new, n_modes_new, n_modes_new))
+            for ni, i in enumerate(nonfrozen_list):
+                for nj, j in enumerate(nonfrozen_list):
+                    for nk, k in enumerate(nonfrozen_list):
+                        for nl, l in enumerate(nonfrozen_list):
+                            h2_new[(ni, nj, nk, nl)] = fermop._h2[(i, j, k, l)]
+        else:
+            h2_new = np.zeros((n_modes_new, n_modes_new, n_modes_new, n_modes_new))
+
+        fermop = FermionicOperator(h1_new, h2_new)
+
+        return fermop, energy_shift
+
 
     def total_particle_number(self):
         """
