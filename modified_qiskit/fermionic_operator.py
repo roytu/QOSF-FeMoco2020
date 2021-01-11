@@ -732,7 +732,13 @@ class FermionicOperator:
         h2_new = defaultdict(float)
 
         # Precomputation step
+        from time import time
+
+        print("Start precompute...")
+        start_time = time()
         molecule.two_body_integral_precompute()
+        print("Done. Time: " + str(time() - start_time))
+
         def get_h2(i, j, l, k):
             """ Get a single point of the two_body_integrals tensor """
             return molecule.two_body_integral_single(i, j, l, k)
@@ -744,13 +750,18 @@ class FermionicOperator:
             # First simplify h2 and renormalize original h1
 
             # Everything is non-frozen
+            print("Start non-frozen...")
+            start_time = time()
             for __i, __l in itertools.product(nonfrozen_list, repeat=2):
                 for __j, __k in itertools.product(nonfrozen_list, repeat=2):
                     h2_new[(__i - np.where(freeze_list < __i)[0].size,
                            __j - np.where(freeze_list < __j)[0].size,
                            __l - np.where(freeze_list < __l)[0].size,
                            __k - np.where(freeze_list < __k)[0].size)] = get_h2(__i, __j, __l, __k)
+            print("Done. Time: " + str(time() - start_time))
 
+            print("Start frozen...")
+            start_time = time()
             # Everything is frozen
             for __i, __l in itertools.product(freeze_list, repeat=2):
                 # i == k, j == l, i != l:   energy -= h[ijlk]
@@ -760,6 +771,7 @@ class FermionicOperator:
 
                 energy_shift -= get_h2(__i, __l, __l, __i)
                 energy_shift += get_h2(__i, __i, __l, __l)
+            print("Done. Time: " + str(time() - start_time))
 
             ## i == k, i frozen, j not frozen, l not frozen, k frozen: h1[l, j] -= h2[ijlk]
             #for __j, __l in itertools.product(nonfrozen_list, repeat=2):
@@ -790,12 +802,15 @@ class FermionicOperator:
             #        h_1[__i, __k] -= fermop._h2[__i, x, x, __k]
 
 
+            print("Start else-frozen...")
+            start_time = time()
             for x, y in itertools.product(nonfrozen_list, repeat=2):
                 for z in freeze_list:
                     h_1[x, y] -= get_h2(z, x, y, z)
                     h_1[x, y] += get_h2(z, z, x, y)
                     h_1[x, y] += get_h2(x, y, z, z)
                     h_1[x, y] -= get_h2(x, z, z, y)
+            print("Done. Time: " + str(time() - start_time))
 
             # Else
             #for __i, __j, __l, __k in itertools.product(range(n_modes_old), repeat=4):
@@ -823,6 +838,9 @@ class FermionicOperator:
         fermop = FermionicOperator(h1_new, h2_new)
 
         # ---- ELIMINATION ----
+        print("Start elimination...")
+        start_time = time()
+
         fermion_mode_array = remove_list
         fermion_mode_array = np.sort(fermion_mode_array)
         n_modes_old = fermop._modes
@@ -845,6 +863,7 @@ class FermionicOperator:
         else:
             h2_new = np.zeros((n_modes_new, n_modes_new, n_modes_new, n_modes_new))
 
+        print("Done. Time: " + str(time() - start_time))
         fermop = FermionicOperator(h1_new, h2_new)
 
         return fermop, energy_shift
