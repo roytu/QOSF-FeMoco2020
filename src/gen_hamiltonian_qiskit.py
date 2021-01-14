@@ -1,6 +1,13 @@
 
-import os
 import sys
+import os
+
+# Use our path for qiskit instead
+lib_path = os.path.join(os.getcwd(), "lib")
+sys.path.insert(0, lib_path)
+print(sys.path)
+
+import os
 import numpy as np
 from qiskit.chemistry import FermionicOperator
 from qiskit.chemistry import QMolecule

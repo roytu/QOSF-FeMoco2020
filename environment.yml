@@ -1,5 +1,6 @@
 name: qosf
 channels:
+  - pyscf
   - defaults
 dependencies:
   - _libgcc_mutex=0.1=main
@@ -7,12 +8,16 @@ dependencies:
   - ca-certificates=2020.12.8=h06a4308_0
   - certifi=2020.12.5=py37h06a4308_0
   - decorator=4.4.2=py_0
+  - hdf5=1.10.6=hb1b8bf9_0
   - intel-openmp=2020.2=254
   - ld_impl_linux-64=2.33.1=h53a641e_7
+  - libcint=4.0.7=0
   - libedit=3.1.20191231=h14c3975_1
   - libffi=3.3=he6710b0_2
   - libgcc-ng=9.1.0=hdf63c60_0
+  - libgfortran-ng=7.3.0=hdf63c60_0
   - libstdcxx-ng=9.1.0=hdf63c60_0
+  - libxc=4.3.4=h14c3975_0
   - mkl=2020.2=256
   - mkl-service=2.3.0=py37he8ac12f_0
   - mkl_fft=1.2.0=py37h23d657b_0
@@ -23,6 +28,7 @@ dependencies:
   - numpy-base=1.19.2=py37hfa32c7d_0
   - openssl=1.1.1i=h27cfd23_0
   - pip=20.3.3=py37h06a4308_0
+  - pyscf=1.7.6=py37h39e3cac_0
   - python=3.7.9=h7579374_0
   - readline=8.0=h7b6447c_0
   - setuptools=51.0.0=py37h06a4308_2
@@ -30,11 +36,14 @@ dependencies:
   - sqlite=3.33.0=h62c20be_0
   - tk=8.6.10=hbc83047_0
   - wheel=0.36.2=pyhd3eb1b0_0
+  - xcfun=2.1.0=h6bb024c_0
   - xz=5.2.5=h7b6447c_0
   - zlib=1.2.11=h7b6447c_3
   - pip:
     - attrs==20.3.0
+    - cached-property==1.5.2
     - cffi==1.14.4
+    - chardet==4.0.0
     - cryptography==3.3.1
     - cython==0.29.21
     - dill==0.3.3
@@ -42,6 +51,8 @@ dependencies:
     - docplex==2.19.202
     - fastdtw==0.3.4
     - fastjsonschema==2.14.5
+    - h5py==3.1.0
+    - idna==2.10
     - importlib-metadata==3.3.0
     - inflection==0.5.1
     - joblib==1.0.0
@@ -68,14 +79,16 @@ dependencies:
     - qiskit-ignis==0.5.1
     - qiskit-terra==0.16.1
     - quandl==3.5.3
+    - requests==2.25.1
     - requests-ntlm==1.1.0
     - retworkx==0.7.2
     - scikit-learn==0.24.0
+    - scipy==1.6.0
     - sympy==1.7.1
     - threadpoolctl==2.1.0
     - typing-extensions==3.7.4.3
+    - urllib3==1.26.2
     - websockets==8.1
     - yfinance==0.1.55
     - zipp==3.4.0
-prefix: /home/poboy/.conda/envs/qosf
-
+prefix: /home/poboy/programs/miniconda3/envs/qosf
