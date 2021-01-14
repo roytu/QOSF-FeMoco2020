@@ -9,8 +9,8 @@ class GenQubitOpFemoco(GenQubitOp):
         self.geometry_filename = "molecules/ICS.xyz"
         self.charge = -1
         self.spin = 3
-        self.freeze_list = range(184)
-        self.remove_list = range(190, 239)
+        self.freeze_list = list(range(184))
+        self.remove_list = list(range(190, 239))
         self.map_type = "jordan_wigner" # parity, jordan_wigner, or bravyi_kitaev
         self.basis = "sto3g"
 
