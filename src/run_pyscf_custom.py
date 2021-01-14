@@ -122,7 +122,7 @@ def run_pyscf(molecule,
     pyscf_scf.verbose = 0
 
     # Custom properties
-    pyscf_scf.chkfile = 'rohf.chk'
+    pyscf_scf.chkfile = 'chkfiles/rohf.chk'
     pyscf_scf.init_guess = 'chkfile'
     #pyscf_scf.max_cycle = 1000
     pyscf_scf.max_cycle = 0  # Use chkfile
@@ -212,9 +212,12 @@ def run_pyscf(molecule,
                 molecule.name, molecule.n_electrons, molecule.fci_energy))
 
     # Return updated molecule instance.
+    print("Ending pyscf...")
     pyscf_molecular_data = PyscfMolecularData.__new__(PyscfMolecularData)
     pyscf_molecular_data.__dict__.update(molecule.__dict__)
-    pyscf_molecular_data.save()
+    print("Saving...")
+    #pyscf_molecular_data.save()
+    print("Saved")
     return pyscf_molecular_data
 
 

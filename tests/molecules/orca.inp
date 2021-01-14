@@ -1,0 +1,20 @@
+## avogadro generated ORCA input file 
+# Advanced Mode
+# 
+! TPSSh OPT def2-TZVPP NormalPrint Grid4 TightSCF
+%scf
+	MaxIter 100000
+	CNVDIIS 1
+	CNVSOSCF 0 
+end
+%output
+        print[p_mos] true
+        print[p_basis] 5
+        print[p_hirshfeld] 1
+end
+%pal
+	nprocs 14
+end
+
+* xyzfile 0 5 ICS.xyz
+
