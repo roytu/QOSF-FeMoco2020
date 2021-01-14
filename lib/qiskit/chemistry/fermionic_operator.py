@@ -750,6 +750,8 @@ class FermionicOperator:
 
         # Prep h1 and h2 arrays
 
+        print("Preparing h1 arrays...")
+
         # H1
         ints_a = molecule.mo_onee_ints
 
@@ -757,6 +759,8 @@ class FermionicOperator:
             ints_b = ints_a
         else:
             ints_b = molecule.mo_onee_ints_b
+
+        print("Preparing h2 arrays...")
         
         # H2
         ints_aa = np.einsum('ijkl->ljik', molecule.mo_eri_ints)
@@ -771,6 +775,8 @@ class FermionicOperator:
         new_N = len(nonremoved_list_a) + len(nonremoved_list_b)
 
         ######## REMOVE STEP FOR H1 ########
+
+        print("Starting remove step for h1...")
 
         mask_h1_a_i, mask_h1_a_j = np.meshgrid(nonremoved_list_a, nonremoved_list_a, indexing='ij')
         mask_h1_b_i, mask_h1_b_j = np.meshgrid(nonremoved_list_b, nonremoved_list_b, indexing='ij')
@@ -799,6 +805,8 @@ class FermionicOperator:
         h1[len(nonremoved_list_a):, len(nonremoved_list_a):] = h1_b
 
         ######## REMOVE STEP FOR H2 ########
+
+        print("Starting remove step for h2...")
 
         mask_h2_aa_i, mask_h2_aa_j, mask_h2_aa_k, mask_h2_aa_l = np.meshgrid(nonremoved_list_a, nonremoved_list_a, nonremoved_list_a, nonremoved_list_a, indexing='ij')
         mask_h2_ab_i, mask_h2_ab_j, mask_h2_ab_k, mask_h2_ab_l = np.meshgrid(nonremoved_list_a, nonremoved_list_b, nonremoved_list_b, nonremoved_list_a, indexing='ij')
@@ -849,6 +857,7 @@ class FermionicOperator:
         # ---- FREEZE ----
         # ================
 
+        print("Starting freeze steps...")
         N = h1.shape[0]  # Use new h1 size
 
         # Invert to get non-frozen lists
