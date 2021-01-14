@@ -833,21 +833,98 @@ class FermionicOperator:
         h2[num_a:, :num_a, :num_a, num_a:] = h2_ba
         h2[num_a:, num_a:, num_a:, num_a:] = h2_bb
 
-        h2 *= -0.5
+        h2 *= -0.5  # Normalization to match qiskit's twoe_to_spin function
 
-        return FermionicOperator(h1, h2), 0
+        #return FermionicOperator(h1, h2), 0
 
-        ######## UPDATE ########
-        # Update freeze_list
+        ######## CLEANUP BEFORE FREEZING ########
 
-        1/0  # DO NOT REMOVE THIS UNTIL WE UPDATE FREEZE_LIST
+        freeze_list = [x - np.where(remove_list < x)[0].size for x in freeze_list]
 
-        # At this point, h1 should be spin-agnostic
+        # At this point, h1/h2 should be spin-agnostic
+        # (as in, we can think of them as generic MO arrays without considering spin)
         # If it is not then you did something wrong
 
         # ================
         # ---- FREEZE ----
         # ================
+
+        N = h1.shape[0]  # Use new h1 size
+
+        # Invert to get non-frozen lists
+        nonfreeze_list = np.setdiff1d(np.arange(0, N), freeze_list)
+
+        # In order to remove frozen orbitals, there are effectively three subspaces we care about:
+        #
+        #
+        #
+        #               ---------------------------
+        #               |               |         |
+        #               |  frozen       |  mid-   |
+        #               |               |  frozen |
+        #               |               |         |
+        #               |               |         |
+        #               |               |         |
+        #    h_2 =      |-------------------------|
+        #               |               |         |
+        #               |  mid-         |  non-   |
+        #               |  frozen       |  frozen |
+        #               |               |         |
+        #               |-------------------------|
+
+        #   (Note that this is a 2d projection of a 4d matrix, but it generalizes)
+        #
+        #   The "non-frozen" subspace is effectively moved to the new array untouched
+        #   The "frozen" subspace is removed and contributes to the energy_shift constant
+        #   The "mid-frozen" subspace is removed and contributes to various rows in h_1
+
+        energy_shift = 0
+
+        ######## HANDLE NON-FROZEN SUBSPACE ########
+        from time import time
+        print("Start non-frozen...")
+        start_time = time()
+        mask_f_h2_i, mask_f_h2_j, mask_f_h2_k, mask_f_h2_l = np.meshgrid(nonfreeze_list, nonfreeze_list, nonfreeze_list, nonfreeze_list, indexing='ij')
+        h2_new = h2[mask_f_h2_i, mask_f_h2_j, mask_f_h2_k, mask_f_h2_l]
+        print("Done. Time: " + str(time() - start_time))
+
+        ######## HANDLE FROZEN SUBSPACE ########
+        print("Start frozen...")
+        start_time = time()
+        for __i, __l in itertools.product(freeze_list, repeat=2):
+            # i == k, j == l, i != l:   energy -= h[ijlk]
+            # i == j, k == l, i != l:   energy += h[ijlk]
+            if __i == __l:
+                continue
+
+            energy_shift -= h2[__i, __l, __l, __i]
+            energy_shift += h2[__i, __i, __l, __l]
+        print("Done. Time: " + str(time() - start_time))
+
+        ######## HANDLE MID-FROZEN SUBSPACE ########
+
+        print("Start mid-frozen...")
+        start_time = time()
+        for x, y in itertools.product(nonfreeze_list, repeat=2):
+            for z in freeze_list:
+                h1[x, y] -= h2[z, x, y, z]
+                h1[x, y] += h2[z, z, x, y]
+                h1[x, y] += h2[x, y, z, z]
+                h1[x, y] -= h2[x, z, z, y]
+        print("Done. Time: " + str(time() - start_time))
+
+        ######## HANDLE H1 ########
+        energy_shift += np.sum(np.diagonal(h1)[freeze_list])
+
+        h1_id_i, h1_id_j = np.meshgrid(nonfreeze_list, nonfreeze_list, indexing='ij')
+        h1_new = h1[h1_id_i, h1_id_j]
+
+        h1 = h1_new
+        h2 = h2_new
+
+        return FermionicOperator(h1, h2), energy_shift
+
+
 
         # ---- Calculate integrals ----
         h1 = molecule.one_body_integrals

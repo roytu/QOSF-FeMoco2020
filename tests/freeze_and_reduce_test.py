@@ -5,9 +5,9 @@ import pathlib
 
 import numpy as np
 
-import logging
-logging.basicConfig()
-logging.getLogger().setLevel(logging.DEBUG)
+#import logging
+#logging.basicConfig()
+#logging.getLogger().setLevel(logging.DEBUG)
 #logging.getLogger().setLevel(logging.INFO)
 
 
@@ -16,7 +16,7 @@ class TestFreezeAndReduce(object):
         self.filename = "hdf5_files/lih_sto3g_(0,0).hdf5"
         #self.freeze_list = range(0, 1)
         self.remove_list = [1, 9]
-        self.freeze_list = []
+        self.freeze_list = [2]
         #self.freeze_list = range(184)
         #self.remove_list = range(190, 239)
         self.map_type = "parity" # parity, jordan_wigner, or bravyi_kitaev
@@ -28,7 +28,7 @@ class TestFreezeAndReduce(object):
 
         # Compare h1
         diff_h1 = np.amax(np.abs(real.h1 - modified.h1))
-        if diff_h1 > 0:
+        if diff_h1 > 1e-12:
             print("TEST FAILED: H1 IS DIFFERENT BY " + str(diff_h1))
             print("=" * 20)
             print("REAL:\n")
@@ -41,16 +41,27 @@ class TestFreezeAndReduce(object):
 
         # Compare h2
         diff_h2 = np.amax(np.abs(real.h2 - modified.h2))
-        if diff_h2 > 0:
-            print("TEST FAILED: H2 IS DIFFERENT")
+        if diff_h2 > 1e-12:
+            print("TEST FAILED: H2 IS DIFFERENT BY " + str(diff_h2))
             print("=" * 20)
+            print(np.argwhere(np.abs(real.h2 - modified.h2) >= 1e-12))
             print("REAL:\n")
-            print(real.h2[0, :4, :4, 0])
+            print(real.h2[0, :, :, 1])
             print("h2.shape == " + str(real.h2.shape))
             print("MODIFIED:\n")
-            print(modified.h2[0, :4, :4, 0])
+            print(modified.h2[0, :, :, 1])
             print("h2.shape == " + str(real.h2.shape))
             raise Exception("H2 failed")
+
+        # Compare energy_shift
+        if real.energy_shift != modified.energy_shift:
+            print("TEST FAILED: wrong energy_shift")
+            print("=" * 20)
+            print("REAL:\n")
+            print(real.energy_shift)
+            print("MODIFIED:\n")
+            print(modified.energy_shift)
+            raise Exception("energy_shift failed")
  
     def run_real_qiskit(self):
 
@@ -100,13 +111,17 @@ class TestFreezeAndReduce(object):
         energy_shift = 0
         if len(self.freeze_list) > 0:
             fermop, energy_shift = fermop.fermion_mode_freezing(self.freeze_list)
+
+        # Rebase remove
+        remove_list = [x - np.where(np.array(self.freeze_list) < x)[0].size for x in self.remove_list]
         
         # Remove
         if len(self.remove_list) > 0:
-            fermop = fermop.fermion_mode_elimination(self.remove_list)
+            fermop = fermop.fermion_mode_elimination(remove_list)
 
         result.h1 = fermop.h1
         result.h2 = fermop.h2
+        result.energy_shift = energy_shift
         
         # Generate qubit op
         qubitop = fermop.mapping('parity')
@@ -174,6 +189,7 @@ class TestFreezeAndReduce(object):
 
         result.h1 = fermop.h1
         result.h2 = fermop.h2
+        result.energy_shift = energy_shift
         
         # Generate qubit op
         qubitop = fermop.mapping('parity')
