@@ -14,14 +14,47 @@ logging.getLogger().setLevel(logging.DEBUG)
 class TestFreezeAndReduce(object):
     def init(self):
         self.filename = "hdf5_files/lih_sto3g_(0,0).hdf5"
-        self.freeze_list = range(0, 1)
-        self.remove_list = range(5, 6)
+        #self.freeze_list = range(0, 1)
+        self.remove_list = [1, 9]
+        self.freeze_list = []
         #self.freeze_list = range(184)
         #self.remove_list = range(190, 239)
         self.map_type = "parity" # parity, jordan_wigner, or bravyi_kitaev
         self.g = self.load_xyz("molecules/LiH.xyz")
+
+    def test(self):
+        real = self.run_real_qiskit()
+        modified = self.run_modified_qiskit()
+
+        # Compare h1
+        diff_h1 = np.amax(np.abs(real.h1 - modified.h1))
+        if diff_h1 > 0:
+            print("TEST FAILED: H1 IS DIFFERENT BY " + str(diff_h1))
+            print("=" * 20)
+            print("REAL:\n")
+            print(real.h1)
+            print("h1.shape == " + str(real.h1.shape))
+            print("MODIFIED:\n")
+            print(modified.h1)
+            print("h1.shape == " + str(modified.h1.shape))
+            raise Exception("H1 failed")
+
+        # Compare h2
+        diff_h2 = np.amax(np.abs(real.h2 - modified.h2))
+        if diff_h2 > 0:
+            print("TEST FAILED: H2 IS DIFFERENT")
+            print("=" * 20)
+            print("REAL:\n")
+            print(real.h2[0, :4, :4, 0])
+            print("h2.shape == " + str(real.h2.shape))
+            print("MODIFIED:\n")
+            print(modified.h2[0, :4, :4, 0])
+            print("h2.shape == " + str(real.h2.shape))
+            raise Exception("H2 failed")
  
-    def test_real_qiskit(self):
+    def run_real_qiskit(self):
+
+        result = Result()
 
         # ----- Import libraries and initialize -----
 
@@ -64,10 +97,16 @@ class TestFreezeAndReduce(object):
         )
         
         # Freeze
-        fermop, energy_shift = fermop.fermion_mode_freezing(self.freeze_list)
+        energy_shift = 0
+        if len(self.freeze_list) > 0:
+            fermop, energy_shift = fermop.fermion_mode_freezing(self.freeze_list)
         
         # Remove
-        fermop = fermop.fermion_mode_elimination(self.remove_list)
+        if len(self.remove_list) > 0:
+            fermop = fermop.fermion_mode_elimination(self.remove_list)
+
+        result.h1 = fermop.h1
+        result.h2 = fermop.h2
         
         # Generate qubit op
         qubitop = fermop.mapping('parity')
@@ -83,8 +122,15 @@ class TestFreezeAndReduce(object):
         pathlib.Path(results_dir).mkdir(parents=True, exist_ok=True)
         with open(os.path.join(results_dir, output_file), "w") as f:
             f.write(qubit_op_str)
+
+        result.qubitop = qubitop
+
+        return result
     
-    def test_modified_qiskit(self):
+    def run_modified_qiskit(self):
+
+        result = Result()
+
         # ----- Import libraries and initialize -----
 
         sys.path.insert(0, os.getcwd())
@@ -125,6 +171,9 @@ class TestFreezeAndReduce(object):
         # ----- Perform test -----
 
         fermop, energy_shift = FermionicOperator.construct_operator(self.molecule, self.freeze_list, self.remove_list)
+
+        result.h1 = fermop.h1
+        result.h2 = fermop.h2
         
         # Generate qubit op
         qubitop = fermop.mapping('parity')
@@ -142,6 +191,10 @@ class TestFreezeAndReduce(object):
         pathlib.Path(results_dir).mkdir(parents=True, exist_ok=True)
         with open(os.path.join(results_dir, output_file), "w") as f:
             f.write(qubit_op_str)
+
+        result.qubitop = qubitop
+
+        return result
 
     # ---- Utility functions ----
 
@@ -179,3 +232,5 @@ class TestFreezeAndReduce(object):
     
         return output
 
+class Result(object):
+    pass

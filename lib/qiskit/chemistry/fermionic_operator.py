@@ -712,13 +712,16 @@ class FermionicOperator:
     def construct_operator(molecule, freeze_list, remove_list):
         """ Returns a reduced fermionic operator
 
+        Args:
+            freeze_list: list of indices to freeze (in spin-space)
+            remove_list: list of indices to remove (in spin-space)
         """
         # ROY INJECT
 
         # Sanity check; freeze and remove lists should be unique
+        assert len(freeze_list + remove_list) == len(set(freeze_list + remove_list))
         freeze_list = np.array(list(freeze_list))
         remove_list = np.array(list(remove_list))
-        assert len(freeze_list + remove_list) == len(set(freeze_list + remove_list))
 
         # Print molecular info
         print("Alpha orbitals:")
@@ -731,40 +734,120 @@ class FermionicOperator:
         print(molecule.orbital_energies_b)
         print()
 
-        # Convert remove_list to spin-less masks
+        # ================
+        # ---- REMOVE ----
+        # ================
+
         N = molecule.num_orbitals  # length of integral arrays (spinless)
 
-        remove_list_aa = np.where(remove_list < N)[0]
-        remove_list_bb = np.where(remove_list >= N)[0]
-        import pdb; pdb.set_trace()
-        #mask_h1_aa = np.meshgrid(
-        mask_h1_aa_i, mask_h1_aa_j = np.meshgrid(active_list, active_list, indexing='ij')
+        # Convert remove_list to spin-less masks
+        remove_list_a = remove_list[remove_list < N]
+        remove_list_b = remove_list[remove_list >= N] - N
 
-        import pdb; pdb.set_trace()
+        # Invert to get non-removed lists
+        nonremoved_list_a = np.setdiff1d(np.arange(0, N), remove_list_a)
+        nonremoved_list_b = np.setdiff1d(np.arange(0, N), remove_list_b)
 
+        # Prep h1 and h2 arrays
 
+        # H1
+        ints_a = molecule.mo_onee_ints
 
+        if molecule.mo_onee_ints_b is None:
+            ints_b = ints_a
+        else:
+            ints_b = molecule.mo_onee_ints_b
+        
+        # H2
+        ints_aa = np.einsum('ijkl->ljik', molecule.mo_eri_ints)
 
+        if molecule.mo_eri_ints_bb is None or molecule.mo_eri_ints_ba is None:
+            ints_bb = ints_ba = ints_ab = ints_aa
+        else:
+            ints_bb = np.einsum('ijkl->ljik', molecule.mo_eri_ints_bb)
+            ints_ba = np.einsum('ijkl->ljik', molecule.mo_eri_ints_ba)
+            ints_ab = np.einsum('ijkl->ljik', molecule.mo_eri_ints_ba.transpose())
 
+        new_N = len(nonremoved_list_a) + len(nonremoved_list_b)
 
+        ######## REMOVE STEP FOR H1 ########
 
+        mask_h1_a_i, mask_h1_a_j = np.meshgrid(nonremoved_list_a, nonremoved_list_a, indexing='ij')
+        mask_h1_b_i, mask_h1_b_j = np.meshgrid(nonremoved_list_b, nonremoved_list_b, indexing='ij')
 
+        h1_a = ints_a[mask_h1_a_i, mask_h1_a_j]
+        h1_b = ints_b[mask_h1_b_i, mask_h1_b_j]
 
+        # Merge h1_a and h1_b
 
+        #               ---------------------
+        #               |         |xxxxxxxxx|
+        #               |  h1_a   |xxxxxxxxx|
+        #               |         |xxxxxxxxx|
+        #               |         |xxxxxxxxx|
+        #    h_1 =      |-------------------|
+        #               |xxxxxxxxx|         |
+        #               |xxxxxxxxx|  h1_b   |
+        #               |xxxxxxxxx|         |
+        #               |xxxxxxxxx|         |
+        #               |-------------------|
 
+        # Note that h1_a = h1_b for RHF since the Hamiltonian is spin-agnostic
 
+        h1 = np.zeros((new_N, new_N))
+        h1[:len(nonremoved_list_a), :len(nonremoved_list_a)] = h1_a
+        h1[len(nonremoved_list_a):, len(nonremoved_list_a):] = h1_b
 
+        ######## REMOVE STEP FOR H2 ########
 
+        mask_h2_aa_i, mask_h2_aa_j, mask_h2_aa_k, mask_h2_aa_l = np.meshgrid(nonremoved_list_a, nonremoved_list_a, nonremoved_list_a, nonremoved_list_a, indexing='ij')
+        mask_h2_ab_i, mask_h2_ab_j, mask_h2_ab_k, mask_h2_ab_l = np.meshgrid(nonremoved_list_a, nonremoved_list_b, nonremoved_list_b, nonremoved_list_a, indexing='ij')
+        mask_h2_ba_i, mask_h2_ba_j, mask_h2_ba_k, mask_h2_ba_l = np.meshgrid(nonremoved_list_b, nonremoved_list_a, nonremoved_list_a, nonremoved_list_b, indexing='ij')
+        mask_h2_bb_i, mask_h2_bb_j, mask_h2_bb_k, mask_h2_bb_l = np.meshgrid(nonremoved_list_b, nonremoved_list_b, nonremoved_list_b, nonremoved_list_b, indexing='ij')
 
+        h2_aa = ints_aa[mask_h2_aa_i, mask_h2_aa_j, mask_h2_aa_k, mask_h2_aa_l]
+        h2_ba = ints_ba[mask_h2_ba_i, mask_h2_ba_j, mask_h2_ba_k, mask_h2_ba_l]
+        h2_ab = ints_ab[mask_h2_ab_i, mask_h2_ab_j, mask_h2_ab_k, mask_h2_ab_l]
+        h2_bb = ints_bb[mask_h2_bb_i, mask_h2_bb_j, mask_h2_bb_k, mask_h2_bb_l]
 
+        # Merge h2_aa, h2_bb, h2_ab, h2_ba
 
+        #               ---------------------
+        #               |         |         |
+        #               |  h2_aa  |  h2_ab  |
+        #               |         |         |
+        #               |         |         |
+        #    h_2 =      |-------------------|
+        #               |         |         |
+        #               |  h2_ba  |  h2_bb  |
+        #               |         |         |
+        #               |         |         |
+        #               |-------------------|
 
+        # Note that in h_pqrs, p == s, q == r, else or the value is 0
 
+        h2 = np.zeros((new_N, new_N, new_N, new_N))
+        num_a = len(nonremoved_list_a)
+        h2[:num_a, :num_a, :num_a, :num_a] = h2_aa
+        h2[:num_a, num_a:, num_a:, :num_a] = h2_ab
+        h2[num_a:, :num_a, :num_a, num_a:] = h2_ba
+        h2[num_a:, num_a:, num_a:, num_a:] = h2_bb
 
+        h2 *= -0.5
 
+        return FermionicOperator(h1, h2), 0
 
+        ######## UPDATE ########
+        # Update freeze_list
 
-        1/0
+        1/0  # DO NOT REMOVE THIS UNTIL WE UPDATE FREEZE_LIST
+
+        # At this point, h1 should be spin-agnostic
+        # If it is not then you did something wrong
+
+        # ================
+        # ---- FREEZE ----
+        # ================
 
         # ---- Calculate integrals ----
         h1 = molecule.one_body_integrals
@@ -789,14 +872,14 @@ class FermionicOperator:
             ni = i - np.where(remove_list < i)[0].size
             freeze_list.append(ni)
 
-        ints_aa = numpy.einsum('ijkl->ljik', mohijkl)
+        ints_aa = np.einsum('ijkl->ljik', mohijkl)
 
         if mohijkl_bb is None or mohijkl_ba is None:
             ints_bb = ints_ba = ints_ab = ints_aa
         else:
-            ints_bb = numpy.einsum('ijkl->ljik', mohijkl_bb)
-            ints_ba = numpy.einsum('ijkl->ljik', mohijkl_ba)
-            ints_ab = numpy.einsum('ijkl->ljik', mohijkl_ba.transpose())
+            ints_bb = np.einsum('ijkl->ljik', mohijkl_bb)
+            ints_ba = np.einsum('ijkl->ljik', mohijkl_ba)
+            ints_ab = np.einsum('ijkl->ljik', mohijkl_ba.transpose())
 
         # The number of spin orbitals is twice the number of orbitals
         norbs = mohijkl.shape[0]
