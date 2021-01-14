@@ -778,8 +778,8 @@ class FermionicOperator:
 
         print("Starting remove step for h1...")
 
-        mask_h1_a_i, mask_h1_a_j = np.meshgrid(nonremoved_list_a, nonremoved_list_a, indexing='ij')
-        mask_h1_b_i, mask_h1_b_j = np.meshgrid(nonremoved_list_b, nonremoved_list_b, indexing='ij')
+        mask_h1_a_i, mask_h1_a_j = np.meshgrid(nonremoved_list_a, nonremoved_list_a, indexing='ij', sparse=True)
+        mask_h1_b_i, mask_h1_b_j = np.meshgrid(nonremoved_list_b, nonremoved_list_b, indexing='ij', sparse=True)
 
         h1_a = ints_a[mask_h1_a_i, mask_h1_a_j]
         h1_b = ints_b[mask_h1_b_i, mask_h1_b_j]
@@ -808,10 +808,10 @@ class FermionicOperator:
 
         print("Starting remove step for h2...")
 
-        mask_h2_aa_i, mask_h2_aa_j, mask_h2_aa_k, mask_h2_aa_l = np.meshgrid(nonremoved_list_a, nonremoved_list_a, nonremoved_list_a, nonremoved_list_a, indexing='ij')
-        mask_h2_ab_i, mask_h2_ab_j, mask_h2_ab_k, mask_h2_ab_l = np.meshgrid(nonremoved_list_a, nonremoved_list_b, nonremoved_list_b, nonremoved_list_a, indexing='ij')
-        mask_h2_ba_i, mask_h2_ba_j, mask_h2_ba_k, mask_h2_ba_l = np.meshgrid(nonremoved_list_b, nonremoved_list_a, nonremoved_list_a, nonremoved_list_b, indexing='ij')
-        mask_h2_bb_i, mask_h2_bb_j, mask_h2_bb_k, mask_h2_bb_l = np.meshgrid(nonremoved_list_b, nonremoved_list_b, nonremoved_list_b, nonremoved_list_b, indexing='ij')
+        mask_h2_aa_i, mask_h2_aa_j, mask_h2_aa_k, mask_h2_aa_l = np.meshgrid(nonremoved_list_a, nonremoved_list_a, nonremoved_list_a, nonremoved_list_a, indexing='ij', sparse=True)
+        mask_h2_ab_i, mask_h2_ab_j, mask_h2_ab_k, mask_h2_ab_l = np.meshgrid(nonremoved_list_a, nonremoved_list_b, nonremoved_list_b, nonremoved_list_a, indexing='ij', sparse=True)
+        mask_h2_ba_i, mask_h2_ba_j, mask_h2_ba_k, mask_h2_ba_l = np.meshgrid(nonremoved_list_b, nonremoved_list_a, nonremoved_list_a, nonremoved_list_b, indexing='ij', sparse=True)
+        mask_h2_bb_i, mask_h2_bb_j, mask_h2_bb_k, mask_h2_bb_l = np.meshgrid(nonremoved_list_b, nonremoved_list_b, nonremoved_list_b, nonremoved_list_b, indexing='ij', sparse=True)
 
         h2_aa = ints_aa[mask_h2_aa_i, mask_h2_aa_j, mask_h2_aa_k, mask_h2_aa_l]
         h2_ba = ints_ba[mask_h2_ba_i, mask_h2_ba_j, mask_h2_ba_k, mask_h2_ba_l]
@@ -893,7 +893,7 @@ class FermionicOperator:
         from time import time
         print("Start non-frozen...")
         start_time = time()
-        mask_f_h2_i, mask_f_h2_j, mask_f_h2_k, mask_f_h2_l = np.meshgrid(nonfreeze_list, nonfreeze_list, nonfreeze_list, nonfreeze_list, indexing='ij')
+        mask_f_h2_i, mask_f_h2_j, mask_f_h2_k, mask_f_h2_l = np.meshgrid(nonfreeze_list, nonfreeze_list, nonfreeze_list, nonfreeze_list, indexing='ij', sparse=True)
         h2_new = h2[mask_f_h2_i, mask_f_h2_j, mask_f_h2_k, mask_f_h2_l]
         print("Done. Time: " + str(time() - start_time))
 
@@ -925,7 +925,7 @@ class FermionicOperator:
         ######## HANDLE H1 ########
         energy_shift += np.sum(np.diagonal(h1)[freeze_list])
 
-        h1_id_i, h1_id_j = np.meshgrid(nonfreeze_list, nonfreeze_list, indexing='ij')
+        h1_id_i, h1_id_j = np.meshgrid(nonfreeze_list, nonfreeze_list, indexing='ij', sparse=True)
         h1_new = h1[h1_id_i, h1_id_j]
 
         h1 = h1_new
