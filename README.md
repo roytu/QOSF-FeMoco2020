@@ -39,6 +39,8 @@ N = num. of frozen orbitals
 
 This should lead to a drastic reduction in memory and run-time requirements.  For FeMoco, we are trying values on the order of M=10, N=200.  This reduces the number of floating points from `(200+10)^4 = 1,944,810,000` to (10^2) * 200 = 20,000`
 
+* (01/14/2020) (develop-roy) Added test code. Run `pytest tests/`
+
 # General notes
 
 ## Generating the Hamiltonian

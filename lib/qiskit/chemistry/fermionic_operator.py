@@ -716,8 +716,8 @@ class FermionicOperator:
         # ROY INJECT
 
         # Sanity check; freeze and remove lists should be unique
-        freeze_list = list(freeze_list)
-        remove_list = list(remove_list)
+        freeze_list = np.array(list(freeze_list))
+        remove_list = np.array(list(remove_list))
         assert len(freeze_list + remove_list) == len(set(freeze_list + remove_list))
 
         # Print molecular info
@@ -726,11 +726,19 @@ class FermionicOperator:
         print(molecule.orbital_energies)
         print()
 
-
         print("Beta orbitals:")
         print("=" * 20)
         print(molecule.orbital_energies_b)
         print()
+
+        # Convert remove_list to spin-less masks
+        N = molecule.num_orbitals  # length of integral arrays (spinless)
+
+        remove_list_aa = np.where(remove_list < N)[0]
+        remove_list_bb = np.where(remove_list >= N)[0]
+        import pdb; pdb.set_trace()
+        #mask_h1_aa = np.meshgrid(
+        mask_h1_aa_i, mask_h1_aa_j = np.meshgrid(active_list, active_list, indexing='ij')
 
         import pdb; pdb.set_trace()
 

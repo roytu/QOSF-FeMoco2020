@@ -1,0 +1,29 @@
+## avogadro generated ORCA input file 
+# Advanced Mode
+# 
+! CCSD(T) def2-TZVPP NormalPrint Grid4 
+%scf
+	MaxIter 10000
+	CNVDIIS 1
+	CNVSOSCF 0 
+end
+%mdci
+	maxiter 10000
+end
+%output
+        print[p_mos] true
+        print[p_basis] 5
+        print[p_hirshfeld] 1
+end
+%pal
+	nprocs 4
+end
+
+* xyz 0 1
+  Fe        0.00000       -0.21300       -1.53100
+  Fe        0.00000       -0.21300        1.53100
+   S        1.46100        0.37200        0.00000
+   S       -1.46100        0.37200        0.00000
+*
+
+
