@@ -55,6 +55,7 @@ dependencies:
     - idna==2.10
     - importlib-metadata==3.3.0
     - inflection==0.5.1
+    - iniconfig==1.1.1
     - joblib==1.0.0
     - jsonschema==3.2.0
     - lxml==4.6.2
@@ -63,12 +64,17 @@ dependencies:
     - multitasking==0.0.9
     - nest-asyncio==1.4.3
     - ntlm-auth==1.5.0
+    - packaging==20.8
     - pandas==1.2.0
+    - pluggy==0.13.1
     - ply==3.11
     - psutil==5.8.0
+    - py==1.10.0
     - pybind11==2.6.1
     - pycparser==2.20
+    - pyparsing==2.4.7
     - pyrsistent==0.17.3
+    - pytest==6.2.1
     - python-constraint==1.4.0
     - python-dateutil==2.8.1
     - pytz==2020.5
@@ -86,6 +92,7 @@ dependencies:
     - scipy==1.6.0
     - sympy==1.7.1
     - threadpoolctl==2.1.0
+    - toml==0.10.2
     - typing-extensions==3.7.4.3
     - urllib3==1.26.2
     - websockets==8.1
