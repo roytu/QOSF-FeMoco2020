@@ -808,15 +808,54 @@ class FermionicOperator:
 
         print("Starting remove step for h2...")
 
-        mask_h2_aa_i, mask_h2_aa_j, mask_h2_aa_k, mask_h2_aa_l = np.meshgrid(nonremoved_list_a, nonremoved_list_a, nonremoved_list_a, nonremoved_list_a, indexing='ij', sparse=True)
-        mask_h2_ab_i, mask_h2_ab_j, mask_h2_ab_k, mask_h2_ab_l = np.meshgrid(nonremoved_list_a, nonremoved_list_b, nonremoved_list_b, nonremoved_list_a, indexing='ij', sparse=True)
-        mask_h2_ba_i, mask_h2_ba_j, mask_h2_ba_k, mask_h2_ba_l = np.meshgrid(nonremoved_list_b, nonremoved_list_a, nonremoved_list_a, nonremoved_list_b, indexing='ij', sparse=True)
-        mask_h2_bb_i, mask_h2_bb_j, mask_h2_bb_k, mask_h2_bb_l = np.meshgrid(nonremoved_list_b, nonremoved_list_b, nonremoved_list_b, nonremoved_list_b, indexing='ij', sparse=True)
+        #mask_h2_aa_i, mask_h2_aa_j, mask_h2_aa_k, mask_h2_aa_l = np.meshgrid(nonremoved_list_a, nonremoved_list_a, nonremoved_list_a, nonremoved_list_a, indexing='ij', sparse=True)
+        #mask_h2_ab_i, mask_h2_ab_j, mask_h2_ab_k, mask_h2_ab_l = np.meshgrid(nonremoved_list_a, nonremoved_list_b, nonremoved_list_b, nonremoved_list_a, indexing='ij', sparse=True)
+        #mask_h2_ba_i, mask_h2_ba_j, mask_h2_ba_k, mask_h2_ba_l = np.meshgrid(nonremoved_list_b, nonremoved_list_a, nonremoved_list_a, nonremoved_list_b, indexing='ij', sparse=True)
+        #mask_h2_bb_i, mask_h2_bb_j, mask_h2_bb_k, mask_h2_bb_l = np.meshgrid(nonremoved_list_b, nonremoved_list_b, nonremoved_list_b, nonremoved_list_b, indexing='ij', sparse=True)
 
-        h2_aa = ints_aa[mask_h2_aa_i, mask_h2_aa_j, mask_h2_aa_k, mask_h2_aa_l]
-        h2_ba = ints_ba[mask_h2_ba_i, mask_h2_ba_j, mask_h2_ba_k, mask_h2_ba_l]
-        h2_ab = ints_ab[mask_h2_ab_i, mask_h2_ab_j, mask_h2_ab_k, mask_h2_ab_l]
-        h2_bb = ints_bb[mask_h2_bb_i, mask_h2_bb_j, mask_h2_bb_k, mask_h2_bb_l]
+        # Alias for readability
+        a_s = nonremoved_list_a
+        b_s = nonremoved_list_b
+
+        na = len(nonremoved_list_a)
+        nb = len(nonremoved_list_b)
+
+        print("Generating h2_aa...")
+        h2_aa = np.zeros((na, na, na, na))
+        for ni, i in enumerate(a_s):
+            for nj, j in enumerate(a_s):
+                for nk, k in enumerate(a_s):
+                    for nl, l in enumerate(a_s):
+                        h2_aa[ni, nj, nk, nl] = ints_aa[i, j, k, l]
+
+        print("Generating h2_ab...")
+        h2_ab = np.zeros((na, nb, nb, na))
+        for ni, i in enumerate(a_s):
+            for nj, j in enumerate(b_s):
+                for nk, k in enumerate(b_s):
+                    for nl, l in enumerate(a_s):
+                        h2_ab[ni, nj, nk, nl] = ints_ab[i, j, k, l]
+
+        print("Generating h2_ba...")
+        h2_ba = np.zeros((nb, na, na, nb))
+        for ni, i in enumerate(b_s):
+            for nj, j in enumerate(a_s):
+                for nk, k in enumerate(a_s):
+                    for nl, l in enumerate(b_s):
+                        h2_ba[ni, nj, nk, nl] = ints_ba[i, j, k, l]
+
+        print("Generating h2_bb...")
+        h2_bb = np.zeros((nb, nb, nb, nb))
+        for ni, i in enumerate(b_s):
+            for nj, j in enumerate(b_s):
+                for nk, k in enumerate(b_s):
+                    for nl, l in enumerate(b_s):
+                        h2_bb[ni, nj, nk, nl] = ints_bb[i, j, k, l]
+
+        #h2_aa = ints_aa[mask_h2_aa_i, mask_h2_aa_j, mask_h2_aa_k, mask_h2_aa_l]
+        #h2_ab = ints_ab[mask_h2_ab_i, mask_h2_ab_j, mask_h2_ab_k, mask_h2_ab_l]
+        #h2_ba = ints_ba[mask_h2_ba_i, mask_h2_ba_j, mask_h2_ba_k, mask_h2_ba_l]
+        #h2_bb = ints_bb[mask_h2_bb_i, mask_h2_bb_j, mask_h2_bb_k, mask_h2_bb_l]
 
         # Merge h2_aa, h2_bb, h2_ab, h2_ba
 
@@ -834,6 +873,7 @@ class FermionicOperator:
 
         # Note that in h_pqrs, p == s, q == r, else or the value is 0
 
+        print("Combining into h2...")
         h2 = np.zeros((new_N, new_N, new_N, new_N))
         num_a = len(nonremoved_list_a)
         h2[:num_a, :num_a, :num_a, :num_a] = h2_aa
@@ -893,7 +933,7 @@ class FermionicOperator:
         from time import time
         print("Start non-frozen...")
         start_time = time()
-        mask_f_h2_i, mask_f_h2_j, mask_f_h2_k, mask_f_h2_l = np.meshgrid(nonfreeze_list, nonfreeze_list, nonfreeze_list, nonfreeze_list, indexing='ij', sparse=True)
+        mask_f_h2_i, mask_f_h2_j, mask_f_h2_k, mask_f_h2_l = np.meshgrid(nonfreeze_list, nonfreeze_list, nonfreeze_list, nonfreeze_list, indexing='ij')
         h2_new = h2[mask_f_h2_i, mask_f_h2_j, mask_f_h2_k, mask_f_h2_l]
         print("Done. Time: " + str(time() - start_time))
 
@@ -925,7 +965,7 @@ class FermionicOperator:
         ######## HANDLE H1 ########
         energy_shift += np.sum(np.diagonal(h1)[freeze_list])
 
-        h1_id_i, h1_id_j = np.meshgrid(nonfreeze_list, nonfreeze_list, indexing='ij', sparse=True)
+        h1_id_i, h1_id_j = np.meshgrid(nonfreeze_list, nonfreeze_list, indexing='ij')
         h1_new = h1[h1_id_i, h1_id_j]
 
         h1 = h1_new
