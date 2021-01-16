@@ -808,72 +808,79 @@ class FermionicOperator:
 
         print("Starting remove step for h2...")
 
-        #mask_h2_aa_i, mask_h2_aa_j, mask_h2_aa_k, mask_h2_aa_l = np.meshgrid(nonremoved_list_a, nonremoved_list_a, nonremoved_list_a, nonremoved_list_a, indexing='ij', sparse=True)
-        #mask_h2_ab_i, mask_h2_ab_j, mask_h2_ab_k, mask_h2_ab_l = np.meshgrid(nonremoved_list_a, nonremoved_list_b, nonremoved_list_b, nonremoved_list_a, indexing='ij', sparse=True)
-        #mask_h2_ba_i, mask_h2_ba_j, mask_h2_ba_k, mask_h2_ba_l = np.meshgrid(nonremoved_list_b, nonremoved_list_a, nonremoved_list_a, nonremoved_list_b, indexing='ij', sparse=True)
-        #mask_h2_bb_i, mask_h2_bb_j, mask_h2_bb_k, mask_h2_bb_l = np.meshgrid(nonremoved_list_b, nonremoved_list_b, nonremoved_list_b, nonremoved_list_b, indexing='ij', sparse=True)
-
-        # Alias for readability
-        a_s = nonremoved_list_a
-        b_s = nonremoved_list_b
-
-        na = len(nonremoved_list_a)
-        nb = len(nonremoved_list_b)
-
-        print("Shape:")
-        print("=" * 20)
-        print("na: " + str(na))
-        print("nb: " + str(nb))
-        print("")
-
         print("Generating h2_aa...")
-        print("Generating zeros array...")
-        h2_aa = np.zeros((na, na, na, na))
-        print("Assigning array elements...")
-        for ni, i in enumerate(a_s):
-            for nj, j in enumerate(a_s):
-                print("Progress: ni = " + str(ni) + " nj = " + str(nj))
-                for nk, k in enumerate(a_s):
-                    for nl, l in enumerate(a_s):
-                        h2_aa[ni, nj, nk, nl] = ints_aa[i, j, k, l]
+        mi, mj, mk, ml = np.meshgrid(nonremoved_list_a, nonremoved_list_a, nonremoved_list_a, nonremoved_list_a, indexing='ij', copy=False)
+        h2_aa = ints_aa[mi, mj, mk, ml]
 
         print("Generating h2_ab...")
-        print("Generating zeros array...")
-        h2_ab = np.zeros((na, nb, nb, na))
-        print("Assigning array elements...")
-        for ni, i in enumerate(a_s):
-            for nj, j in enumerate(b_s):
-                print("Progress: ni = " + str(ni) + " nj = " + str(nj))
-                for nk, k in enumerate(b_s):
-                    for nl, l in enumerate(a_s):
-                        h2_ab[ni, nj, nk, nl] = ints_ab[i, j, k, l]
+        mi, mj, mk, ml = np.meshgrid(nonremoved_list_a, nonremoved_list_b, nonremoved_list_b, nonremoved_list_a, indexing='ij', copy=False)
+        h2_ab = ints_ab[mi, mj, mk, ml]
 
         print("Generating h2_ba...")
-        print("Generating zeros array...")
-        h2_ba = np.zeros((nb, na, na, nb))
-        print("Assigning array elements...")
-        for ni, i in enumerate(b_s):
-            for nj, j in enumerate(a_s):
-                print("Progress: ni = " + str(ni) + " nj = " + str(nj))
-                for nk, k in enumerate(a_s):
-                    for nl, l in enumerate(b_s):
-                        h2_ba[ni, nj, nk, nl] = ints_ba[i, j, k, l]
+        mi, mj, mk, ml = np.meshgrid(nonremoved_list_b, nonremoved_list_a, nonremoved_list_a, nonremoved_list_b, indexing='ij', copy=False)
+        h2_ba = ints_ba[mi, mj, mk, ml]
 
         print("Generating h2_bb...")
-        print("Generating zeros array...")
-        h2_bb = np.zeros((nb, nb, nb, nb))
-        print("Assigning array elements...")
-        for ni, i in enumerate(b_s):
-            for nj, j in enumerate(b_s):
-                print("Progress: ni = " + str(ni) + " nj = " + str(nj))
-                for nk, k in enumerate(b_s):
-                    for nl, l in enumerate(b_s):
-                        h2_bb[ni, nj, nk, nl] = ints_bb[i, j, k, l]
+        mi, mj, mk, ml = np.meshgrid(nonremoved_list_b, nonremoved_list_b, nonremoved_list_b, nonremoved_list_b, indexing='ij', copy=False)
+        h2_bb = ints_bb[mi, mj, mk, ml]
 
-        #h2_aa = ints_aa[mask_h2_aa_i, mask_h2_aa_j, mask_h2_aa_k, mask_h2_aa_l]
-        #h2_ab = ints_ab[mask_h2_ab_i, mask_h2_ab_j, mask_h2_ab_k, mask_h2_ab_l]
-        #h2_ba = ints_ba[mask_h2_ba_i, mask_h2_ba_j, mask_h2_ba_k, mask_h2_ba_l]
-        #h2_bb = ints_bb[mask_h2_bb_i, mask_h2_bb_j, mask_h2_bb_k, mask_h2_bb_l]
+        # Alias for readability
+        #a_s = nonremoved_list_a
+        #b_s = nonremoved_list_b
+
+        #na = len(nonremoved_list_a)
+        #nb = len(nonremoved_list_b)
+
+        #print("Shape:")
+        #print("=" * 20)
+        #print("na: " + str(na))
+        #print("nb: " + str(nb))
+        #print("")
+
+        #print("Generating h2_aa...")
+        #print("Generating zeros array...")
+        #h2_aa = np.zeros((na, na, na, na))
+        #print("Assigning array elements...")
+        #for ni, i in enumerate(a_s):
+        #    for nj, j in enumerate(a_s):
+        #        print("Progress: ni = " + str(ni) + " nj = " + str(nj))
+        #        for nk, k in enumerate(a_s):
+        #            for nl, l in enumerate(a_s):
+        #                h2_aa[ni, nj, nk, nl] = ints_aa[i, j, k, l]
+
+        #print("Generating h2_ab...")
+        #print("Generating zeros array...")
+        #h2_ab = np.zeros((na, nb, nb, na))
+        #print("Assigning array elements...")
+        #for ni, i in enumerate(a_s):
+        #    for nj, j in enumerate(b_s):
+        #        print("Progress: ni = " + str(ni) + " nj = " + str(nj))
+        #        for nk, k in enumerate(b_s):
+        #            for nl, l in enumerate(a_s):
+        #                h2_ab[ni, nj, nk, nl] = ints_ab[i, j, k, l]
+
+        #print("Generating h2_ba...")
+        #print("Generating zeros array...")
+        #h2_ba = np.zeros((nb, na, na, nb))
+        #print("Assigning array elements...")
+        #for ni, i in enumerate(b_s):
+        #    for nj, j in enumerate(a_s):
+        #        print("Progress: ni = " + str(ni) + " nj = " + str(nj))
+        #        for nk, k in enumerate(a_s):
+        #            for nl, l in enumerate(b_s):
+        #                h2_ba[ni, nj, nk, nl] = ints_ba[i, j, k, l]
+
+        #print("Generating h2_bb...")
+        #print("Generating zeros array...")
+        #h2_bb = np.zeros((nb, nb, nb, nb))
+        #print("Assigning array elements...")
+        #for ni, i in enumerate(b_s):
+        #    for nj, j in enumerate(b_s):
+        #        print("Progress: ni = " + str(ni) + " nj = " + str(nj))
+        #        for nk, k in enumerate(b_s):
+        #            for nl, l in enumerate(b_s):
+        #                h2_bb[ni, nj, nk, nl] = ints_bb[i, j, k, l]
+
 
         # Merge h2_aa, h2_bb, h2_ab, h2_ba
 
