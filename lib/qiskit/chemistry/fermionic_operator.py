@@ -820,34 +820,52 @@ class FermionicOperator:
         na = len(nonremoved_list_a)
         nb = len(nonremoved_list_b)
 
+        print("Shape:")
+        print("=" * 20)
+        print("na: " + str(na))
+        print("nb: " + str(nb))
+        print("")
+
         print("Generating h2_aa...")
+        print("Generating zeros array...")
         h2_aa = np.zeros((na, na, na, na))
+        print("Assigning array elements...")
         for ni, i in enumerate(a_s):
             for nj, j in enumerate(a_s):
+                print("Progress: ni = " + str(ni) + " nj = " + str(nj))
                 for nk, k in enumerate(a_s):
                     for nl, l in enumerate(a_s):
                         h2_aa[ni, nj, nk, nl] = ints_aa[i, j, k, l]
 
         print("Generating h2_ab...")
+        print("Generating zeros array...")
         h2_ab = np.zeros((na, nb, nb, na))
+        print("Assigning array elements...")
         for ni, i in enumerate(a_s):
             for nj, j in enumerate(b_s):
+                print("Progress: ni = " + str(ni) + " nj = " + str(nj))
                 for nk, k in enumerate(b_s):
                     for nl, l in enumerate(a_s):
                         h2_ab[ni, nj, nk, nl] = ints_ab[i, j, k, l]
 
         print("Generating h2_ba...")
+        print("Generating zeros array...")
         h2_ba = np.zeros((nb, na, na, nb))
+        print("Assigning array elements...")
         for ni, i in enumerate(b_s):
             for nj, j in enumerate(a_s):
+                print("Progress: ni = " + str(ni) + " nj = " + str(nj))
                 for nk, k in enumerate(a_s):
                     for nl, l in enumerate(b_s):
                         h2_ba[ni, nj, nk, nl] = ints_ba[i, j, k, l]
 
         print("Generating h2_bb...")
+        print("Generating zeros array...")
         h2_bb = np.zeros((nb, nb, nb, nb))
+        print("Assigning array elements...")
         for ni, i in enumerate(b_s):
             for nj, j in enumerate(b_s):
+                print("Progress: ni = " + str(ni) + " nj = " + str(nj))
                 for nk, k in enumerate(b_s):
                     for nl, l in enumerate(b_s):
                         h2_bb[ni, nj, nk, nl] = ints_bb[i, j, k, l]
