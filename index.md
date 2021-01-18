@@ -53,7 +53,20 @@ TODO
 
 ## Background Info
 
-TODO
+### Quantum Chemistry using Classical Computers
+Simulating quantum mechanical systems, such as molecules have been an important quest in the theoretical chemistry community for some time and numerous algorithms of different cost and underlying theories, are actively researched. For transition metal complexes, due to its complexity, a common choice is to use DFT (density functional theory). Starting from the many-body setup with multiple electrons, protons, and neutrons interacting in the target system, DFT operates on the electron density as a variable, reducing down some complexity of the problem. Based on this background, DFT has some record of treating some moderately-sized molecules chemists are interested in with reasonable cost and accuracy in predicting key chemical properties.
+
+Even with these simplifications, the entire FeMoco complex is quite difficult to simulate with DFT using basis sets that are detailed enough and clever choice of the functionals. Because our aim is to pedagogically explore the steps as if we had the resources to complete the simulation on conventional and quantum computers, simple *(and fictitious)* complex of Fe<sub>2</sub>S<sub>2</sub>, which comprise the core of the FeMoco was used as a model system. Using Orca[^orca] and Avogadro[^avogadro], starting from initial geometries deposited from crystallography, geometry optimization can be performed using the functionals and basis sets (TPSSh and def2-TZVPP in our run) and the frontier orbitals can be plotted. These simulations on classical computer provide us with a baseline of where things are before we explore the quantum computing side of this tale.
+
+[//]: # "TODO Add diagrams/visuals from DFT run"
+
+### The Variational Principle
+
+[//]: # "TODO Add a few words about variational principle"
+
+### Variational Quantum Eigensolver
+
+[//]: # "TODO Add a few words about VQE"
 
 ## Project Planning
 
@@ -76,3 +89,5 @@ TODO
 
 [^qosf]: <https://qosf.org/qc_mentorship/>
 [^vesselin]: <TODO>
+[^orca]: <https://orcaforum.kofo.mpg.de/>
+[^avogadro]: <https://avogadro.cc/>
