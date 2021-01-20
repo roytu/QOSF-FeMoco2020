@@ -145,14 +145,267 @@ correct FeMoco cluster, labeled ICS 6496.
 TODO add image of ICS 6496
 
 
+### Sidenote : Hartree-Fock vs. CASSCF
+
+TODO
 
 ## Generating the Hamiltonian
 
-TODO
+This is the step that seemed easy at the outset of the project, but we
+ultimately didn't give enough respect to -- most of the three months were spent
+here.  The path for setting up VQE involves:
+
+1. Calculating the one-and-two body integrals for the second quantized
+electronic Hamiltonian
+2. Constructing a fermionic operator
+3. Converting the fermionic operator into a qubit operator
+
+The problem is that the two-body term in the electronic Hamiltonian is a
+4-tensor over the number of orbitals in the Fock space, which scales as O(N^4)
+(where N is the number of spin-orbitals).  A molecule such as FeMoco, with ~200
+orbitals, will have 400 spin-orbitals, meaning the two-body tensor will have
+25,600,000,000 elements.  If we store each element as a 64-bit floating point (8
+bytes), simply storing the matrix will cost 204,800,000,000 bytes = 204 GiB.
+This is also too large to store in RAM, so mathematical operations on it become
+expensive.
+
+There are a few simplifications we can make.  The first one we tried was using
+32-bit floating points instead of 64-bit, which should halve the storage
+requirements to ~100 GiB.  However, the biggest simplification involved freezing
+and removing irrelevant orbitals.
+
+A converged ROHF run on FeMoco yields the following orbitals:
+
+```
+TODO orbital energies
+```
+
+This result was gathered by using PySCF's
+[`scf.analyze()`](https://sunqm.github.io/pyscf/scf.html#pyscf.scf.hf.SCF.analyze).
+The assumption is that electrons in the low-energy orbitals will effectively
+never leave -- hence, their effect on the dynamics of the rest of the structure
+can be represented as a static electric potential.  Similarly, the high-energy
+orbitals are unlikely to be filled, and can be removed.
+
+It is not clear to us how one can safely determine how many orbitals can be
+frozen or removed.  We more or less arbitrarily chose to freeze orbitals 1-184,
+and remove orbitals 190-239, leaving an active space of 6 orbitals.  This is
+almost certainly too severe of an approximation, but the priority was to
+generate the minimum-viable VQE circuit, and then slowly relax the
+optimizations.  All of the orbitals above #58 or so are nearly degenerate in
+energy, so a proper analysis will likely need to include them in the active
+space.
+
+Once we have the reduced active space, we can choose a proper mapping
+(Bravyi-Kitaev or Jordan-Wigner) to generate a qubit operator, and then the
+corresponding VQE circuit.  Unfortunately, the freezing and removal steps are
+themselves non-trivial due to the memory requirements mentioned above, and
+require a proper analysis.
 
 ## Details on Qiskit / PySCF libraries
 
+In Qiskit-Aqua 0.8.1, freezing and reduction of orbitals is performed by the
+[FermionicTransformation](https://qiskit.org/documentation/stubs/qiskit.chemistry.transformations.FermionicTransformation.html) class.
+
+```
+class FermionicTransformation(
+    transformation=<FermionicTransformationType.FULL: 'full'>,
+    qubit_mapping=<FermionicQubitMappingType.PARITY: 'parity'>,
+    two_qubit_reduction=True,
+    freeze_core=False,
+    orbital_reduction=None,
+    z2symmetry_reduction=None):
+
+    A transformation from a fermionic problem, represented by a driver, to a qubit operator.
+```
+
+The `orbital_reduction` parameter can be used to specify which orbitals to
+freeze/remove.  The user then calls
+[`.transform(driver)`](https://qiskit.org/documentation/stubs/qiskit.chemistry.transformations.FermionicTransformation.html#qiskit.chemistry.transformations.FermionicTransformation.transform) to 
+generate the qubit operator.
+
+If we use this straight with our molecule, we run into memory allocation errors.
+So let us look at the implementation of this function to see where we can
+reduce the memory requirements.
+
+The
+[`FermionicTransformation()`](https://qiskit.org/documentation/_modules/qiskit/chemistry/transformations/fermionic_transformation.html#FermionicTransformation.__init__) constructor itself is
+uninteresting, as it only assigns parameters.  The meat of the function happens
+in
+[`.transform()`](https://qiskit.org/documentation/_modules/qiskit/chemistry/transformations/fermionic_transformation.html#FermionicTransformation.transform):
+
+```py
+def transform(self, driver: BaseDriver,
+                  aux_operators: Optional[List[FermionicOperator]] = None
+                  ) -> Tuple[OperatorBase, List[OperatorBase]]:
+        ...
+        q_molecule = driver.run()
+        ops, aux_ops = self._do_transform(q_molecule, aux_operators)
+
+        ...
+        return ops, aux_ops
+```
+
+This calls `driver.run()` (which is PySCF's `.kernel()`) and then passes the
+result to `self._do_transform()`:
+
+```
+ def _do_transform(self, qmolecule: QMolecule,
+                      aux_operators: Optional[List[FermionicOperator]] = None
+                      ) -> Tuple[WeightedPauliOperator, List[WeightedPauliOperator]]:
+
+        ...
+        # In the combined list any orbitals that are occupied are added to a freeze list and an
+        # energy is stored from these orbitals to be added later.
+        # Unoccupied orbitals are just discarded.
+        ...
+
+        # construct the fermionic operator
+        fer_op = FermionicOperator(h1=qmolecule.one_body_integrals, h2=qmolecule.two_body_integrals)
+
+        # try to reduce it according to the freeze and remove list
+        fer_op, self._energy_shift, did_shift = \
+            FermionicTransformation._try_reduce_fermionic_operator(fer_op, freeze_list, remove_list)
+
+        ...
+```
+
+Here we run into the first computational bottleneck.
+[`qmolecule.two_body_integrals`](https://qiskit.org/documentation/_modules/qiskit/chemistry/qmolecule.html#QMolecule) is actually not a variable; it's a method defined as such:
+
+```py
+ @property
+    def two_body_integrals(self):
+        """ Returns two body electron integrals. """
+        return QMolecule.twoe_to_spin(self.mo_eri_ints, self.mo_eri_ints_bb, self.mo_eri_ints_ba)
+```
+
+`self.mo_eri_ints`, `self.mo_eri_ints_bb`, and `self.mo_eri_ints_ba` are `(N, N,
+N, N)`-dimensional numpy arrays representing the two-body tensor, where N is the
+number of spatial orbitals.  Each matrix represents a subsection of the full
+spin-orbital Fock space, in this way:
+
+```
+TODO better diagram
+
+       alpha              beta
+       ----------------> ---------------->
+     | -----------------------------------
+  a  | |                |                |
+  l  | |                |                |
+  p  | | mo_eri_ints    | mo_eri_ints_ba |
+  h  | |                |                |
+  a  v |                |                |
+       -----------------------------------
+  b  | |                |                |
+  e  | |                |                |
+  t  | | mo_eri_ints_ab | mo_eri_ints_bb |   (where mo_eri_ints_ab = mo_eri_ints_ba.transpose() )
+  a  | |                |                |
+     v |                |                |
+       -----------------------------------
+```
+
+`twoe_to_spin()` aggregates the spatial matrix into one large spin-orbital
+matrix, but in doing so doubles each of the 4 dimensions, resulting in a
+16-fold increase in memory requirements.  This can be seen in the source for
+[`twoe_to_spin()`](https://qiskit.org/documentation/_modules/qiskit/chemistry/qmolecule.html#QMolecule.twoe_to_spin):
+
+```py
+ def twoe_to_spin(mohijkl, mohijkl_bb=None, mohijkl_ba=None, threshold=1E-12):
+        """Convert two-body MO integrals to spin orbital basis
+
+        Takes two body integrals in molecular orbital basis and returns
+        integrals in spin orbitals ready for use as coefficients to
+        two body terms in 2nd quantized Hamiltonian.
+
+        Args:
+            mohijkl (numpy.ndarray): Two body orbitals in molecular basis
+(AlphaAlpha)
+            mohijkl_bb (numpy.ndarray): Two body orbitals in molecular basis
+(BetaBeta)
+            mohijkl_ba (numpy.ndarray): Two body orbitals in molecular basis
+(BetaAlpha)
+            threshold (float): Threshold value for assignments
+        Returns:
+            numpy.ndarray: Two body integrals in spin orbitals
+        """
+        ints_aa = numpy.einsum('ijkl->ljik', mohijkl)
+
+        if mohijkl_bb is None or mohijkl_ba is None:
+            ints_bb = ints_ba = ints_ab = ints_aa
+        else:
+            ints_bb = numpy.einsum('ijkl->ljik', mohijkl_bb)
+            ints_ba = numpy.einsum('ijkl->ljik', mohijkl_ba)
+            ints_ab = numpy.einsum('ijkl->ljik', mohijkl_ba.transpose())
+
+        # The number of spin orbitals is twice the number of orbitals
+        norbs = mohijkl.shape[0]
+        nspin_orbs = 2*norbs
+
+        # The spin orbitals are mapped in the following way:
+        #       Orbital zero, spin up mapped to qubit 0
+        #       Orbital one,  spin up mapped to qubit 1
+        #       Orbital two,  spin up mapped to qubit 2
+        #            .
+        #            .
+        #       Orbital zero, spin down mapped to qubit norbs
+        #       Orbital one,  spin down mapped to qubit norbs+1
+        #            .
+        #            .
+        #            .
+
+        # Two electron terms
+        moh2_qubit = numpy.zeros([nspin_orbs, nspin_orbs, nspin_orbs,
+nspin_orbs])
+        for p in range(nspin_orbs):  # pylint: disable=invalid-name
+            for q in range(nspin_orbs):
+                for r in range(nspin_orbs):
+                    for s in range(nspin_orbs):  # pylint: disable=invalid-name
+                        spinp = int(p/norbs)
+                        spinq = int(q/norbs)
+                        spinr = int(r/norbs)
+                        spins = int(s/norbs)
+                        if spinp != spins:
+                            continue
+                        if spinq != spinr:
+                            continue
+                        if spinp == 0:
+                            ints = ints_aa if spinq == 0 else ints_ba
+                        else:
+                            ints = ints_ab if spinq == 0 else ints_bb
+                        orbp = int(p % norbs)
+                        orbq = int(q % norbs)
+                        orbr = int(r % norbs)
+                        orbs = int(s % norbs)
+                        if abs(ints[orbp, orbq, orbr, orbs]) > threshold:
+                            moh2_qubit[p, q, r, s] = -0.5*ints[orbp, orbq, orbr,
+orbs]
+
+        return moh2_qubit
+
+```
+
+The full spin-orbital array is allocated in this line:
+
+```
+moh2_qubit = numpy.zeros([nspin_orbs, nspin_orbs, nspin_orbs, nspin_orbs])
+```
+
+and each value in the `(2N, 2N, 2N, 2N)`-dimensional array is computed and
+stored.  This upfront performance penalty is superfluous with our use case, where
+most of the orbitals will be removed.  Additionally, numpy arrays generally
+don't want to be iterated over with Python loops -- their performance benefits
+come from looping at the C level, where the reduced overhead leads to more
+frequent cache hits.  The current implementation does have some benefits, as it
+prevents having to allocate large mesh grids and is much easier to read than
+fully vectorized code.  More on this later.
+
+The second performance bottleneck comes from the `_try_reduce_fermionic_operator()`
+call, which performs the actual freezing/removal:
+
+```
 TODO
+```
 
 ## Further Work
 
