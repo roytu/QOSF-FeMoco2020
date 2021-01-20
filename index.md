@@ -49,15 +49,67 @@ free to skip sections as needed.  So without further ado...
 
 ## Problem Overview
 
-TODO
+The purpose of this project was to calculate the ground state of various
+derivatives of FeMoco, which is this molecule:
+
+[TODO](image)
+
+So what is this and why do we care? This is a cluster that appears in
+nitrogenase, an enzyme responsible for converting gaseous nitrogen (N2) to
+ammonia (NH3) in soil.  The ammonia is then used by plants to synthesize
+chlorophyll. This process (called nitrogen fixation) is a major bottleneck for plant growth, and therefore
+food production, and there are industrial processes that attempt to mimic this.
+The Haber-Bosch process subjects gaseous nitrogen to high temperatures and
+pressures to break the triple-bond, and produces the majority of the nitrogen
+supply available to plants today.  However, generating this high-pressure
+environment is energy-expensive, and the Haber process consumes about 1-2% of the
+world's energy production.  What's /not/ understood is how nitrogenase can break
+the triple-bond of N2 at atmospheric temperatures and pressures.
+
+TODO add formula for Haber bosch
+TODO add formula for Femoco catalyzed nitrogen fixation
+
+This is the question: How does FeMoco *actually* catalyze nitrogen fixation, and
+can we scale this process to replace Haber-Bosch?
 
 ## Background Info
 
-TODO
+To make this concrete -- we know that the reaction starts with N2 and FeMoco,
+and somehow ends up producing NH3 and FeMoco:
+
+TODO N2 + Femoco -> intermediates -> NH3 + Femoco image in Azobacter vinelandii
+
+TODO We want to find what are the chemical intermediates
+TODO Eyring rate equation
+TODO Energy spectrum
+TODO Lowest energy not necessarily ideal (reference Ian Dance paper)
 
 ## Project Planning
 
 TODO
+
+1. Run SCF on FeMoco
+2. Generate Hamiltonian
+3. Run VQE on hamiltonian
+
+## Extracting the Molecule / Defining the Fock Space
+
+The first step in analyzing the molecule is, naturally, to find the geometry for
+it. The first structural models appeared in 1978[^cramer], with the six-atom
+iron cage discovered in 1992. In 2002, a central atom within the cage was
+discovered, which was widely believed to be nitrogen. It wasn't until 2011 when
+we'd have the correct stoichiometry, when the central atom was determined
+to be carbon [^spatzal].
+
+All of this is to say, a lot of the literature and geometries for FeMoco are
+incorrect, and it's important to find a structure from after 2011. Our analysis
+uses [3U7Q](https://www.rcsb.org/structure/3u7q), a protein sample from
+nitrogenase in Azotobacter vinelandii. The 3D view confirms that this has the
+correct FeMoco cluster, labeled ICS 6496.
+
+TODO add image of ICS 6496
+
+
 
 ## Generating the Hamiltonian
 
@@ -71,8 +123,15 @@ TODO
 
 TODO
 
+## Useful Papers
+
+TODO
+
 
 ## Footnotes
 
 [^qosf]: <https://qosf.org/qc_mentorship/>
 [^vesselin]: <TODO>
+[^spatzal]: <https://science.sciencemag.org/content/334/6058/940>
+[^cramer]: . Cramer SP, Hodgson KO, Gillum WO, Mortenson LE. J Am Chem Soc.
+[^bjornsson]: 1978;100:3398–3407. Bjornsson R, Neese F, Schrock RR, Einsle O, DeBeer S. The discovery of Mo(III) in FeMoco: reuniting enzyme and model chemistry. J Biol Inorg Chem. 2015;20(2):447-460. doi:10.1007/s00775-014-1230-6
