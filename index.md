@@ -110,7 +110,7 @@ and the frontier orbitals can be plotted. These simulations on a classical
 computer provide us with a baseline of where things are before we explore the
 quantum computing side of this tale.
 
-[//]: # "TODO Add diagrams/visuals from DFT run"
+"TODO Add diagrams/visuals from DFT run"
 
 ### The Variational Principle
 
@@ -118,7 +118,7 @@ Variational principle is the basic reasoning behind the Variational Quantum Eige
 
 ### Variational Quantum Eigensolver
 
-[//]: # "TODO Add a few words about VQE"
+Starting from the variational principle, VQE (Variational Quantum Eigensolver) pretty simply follows. This algorithm starts from some choice of initial wavefunction ***&Psi;<sub>0</sub>*** . Then, on a quantum device, the expectation value of the energy using this wavefunction, namely ***<&Psi;<sub>0</sub>&vert;H&vert;&Psi;<sub>0</sub>>*** is evaluated. Back on the classical device, the wavefunction is updated and the expectation is calculated iteratively to achieve the global minima. If the global minimum is found, variational principle allows us to conclude that this is the ground state and the expectation that was evaluated is the ground state energy.
 
 ## Project Planning
 
