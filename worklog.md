@@ -40,36 +40,4 @@ N = num. of frozen orbitals
 This should lead to a drastic reduction in memory and run-time requirements.  For FeMoco, we are trying values on the order of M=10, N=200.  This reduces the number of floating points from `(200+10)^4 = 1,944,810,000` to (10^2) * 200 = 20,000`
 
 * (01/14/2020) (develop-roy) Added test code. Run `pytest tests/`
-
-# General notes
-
-## Generating the Hamiltonian
-
-* Current Hamiltonian needs ~230-ish qubits
-* Too big for most NISQ computers, but can run on D-Wave if the Hamiltonian is quadratic
-
-## Thorneley-Lowe Model
-
-Molybdenum nitrogenase performs the following reaction:
-
-```
-N2 + 8 H+ + 8 e− + 16 MgATP → 2 NH3 + H2 + 16 MgADP + 16 Pi
-```
-
-The full mechanism for this is unknown, but an experimentally-supported schematic is given by the [Lowe-Thorneley kinetic model](https://en.wikipedia.org/wiki/Nitrogenase#Lowe-Thorneley_kinetic_model):
-
-![Lowe-Thorneley kinetic model](https://upload.wikimedia.org/wikipedia/en/a/a0/Lowe-Thorneley_Kinetic_Model.jpg)
-
-E0 is the resting state for FeMoco.  E4 is the Janus state which is ready to accept N2 to produce ammonia.  A lot of focus is on the structure of the E4 state.
-
-## Papers
-
-TODO
-
-## Mulliken Analysis / Frozen Core Model
-
-TODO
-
-## QUBO
-
-TODO
+* (01/21/2020) (main) Writing up gh-pages. Preparing repository for submission
