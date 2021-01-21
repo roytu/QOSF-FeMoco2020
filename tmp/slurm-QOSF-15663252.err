@@ -1,9 +1,0 @@
-module: unloading 'python/2.7.12'
-module: loading 'python/3.6.6'
-module: python: To use: module load mpi/openmpi_3.1.6_gcc for using mpi4py
-Traceback (most recent call last):
-  File "./gen_hamiltonian.py", line 86, in <module>
-    H = get_qubit_hamiltonian(g, "sto-3g", charge=0, spin=4)
-  File "./gen_hamiltonian.py", line 52, in get_qubit_hamiltonian
-    pickle.dump(rhf, open("rhf.pkl", "wb"))
-TypeError: cannot serialize '_io.TextIOWrapper' object

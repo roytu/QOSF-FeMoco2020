@@ -1,9 +1,0 @@
-==== RUN NOTES ====
-Filename: hdf5_files/lih_sto3g_(0,0).hdf5
-Charge: 0
-Spin: 0
-Freeze list: [2, 4]
-Remove list: [1, 9]
-Map type: jordan_wigner
-G: [['Li', [3.0, 0.0, 0.0]], ['H', [2.0, 0.0, 0.0]]]
-Basis: sto3g
