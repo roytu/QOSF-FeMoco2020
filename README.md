@@ -21,7 +21,12 @@ details.
 
 # File Structure
 
-TODO
+* `examples/`: Example scripts
+* `src/`: Larger proof-of-concept scripts (less stable)
+* `lib/`: Modified qiskit code
+* `tests/`: Unit tests. Run with `pytest tests/`
+* `hdf5_files/`: SCF results. Load with `QMolecule.load()`
+* `molecules/`: Molecular geometries (pulled from the [Protein Data Bank](https://www.rcsb.org/))
 
 # Setup and Usage Instructions
 
