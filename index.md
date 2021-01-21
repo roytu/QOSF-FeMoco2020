@@ -84,8 +84,9 @@ TODO We want to find what are the chemical intermediates TODO Eyring rate
 equation TODO Energy spectrum TODO Lowest energy not necessarily ideal
 (reference Ian Dance paper)
 
-### Quantum Chemistry using Classical Computers Simulating quantum mechanical
-systems, such as molecules, has been an important quest in the theoretical
+### Quantum Chemistry using Classical Computers
+
+Simulating quantum mechanical systems, such as molecules, has been an important quest in the theoretical
 chemistry community for some time, and numerous algorithms of different cost and
 underlying theories are actively researched. For transition metal complexes, due
 to their complexity, a common choice is to use DFT (density functional theory).
@@ -113,7 +114,7 @@ quantum computing side of this tale.
 
 ### The Variational Principle
 
-[//]: # "TODO Add a few words about variational principle"
+Variational principle is the basic reasoning behind the Variational Quantum Eigensolver algorithm (hence its name). Used also in quantum chemical calculations on conventional computers, this principle simply allows us to establish some trial wavefunctions, and each and every trial wavefunctions should follow this relation: ***E<sub>0</sub> &leq; <&Psi;|H|&Psi;> / <&Psi;|&Psi;>*** . Of course when ***&Psi;*** is exactly the solution of the Hamiltonian ***H***, the equality condition is met. By using the variational principle, we can think of the complicated Hamiltonian problem into a search for global minima of the system. 
 
 ### Variational Quantum Eigensolver
 
