@@ -98,4 +98,3 @@ dependencies:
     - websockets==8.1
     - yfinance==0.1.55
     - zipp==3.4.0
-prefix: /home/poboy/programs/miniconda3/envs/qosf
