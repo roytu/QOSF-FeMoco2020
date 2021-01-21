@@ -114,7 +114,7 @@ quantum computing side of this tale.
 
 ### The Variational Principle
 
-Variational principle is the basic reasoning behind the Variational Quantum Eigensolver algorithm (hence its name). Used also in quantum chemical calculations on conventional computers, this principle simply allows us to establish some trial wavefunctions, and each and every trial wavefunctions should follow this relation: ***E<sub>0</sub> &leq; <&Psi;|H|&Psi;> / <&Psi;|&Psi;>*** . Of course when ***&Psi;*** is exactly the solution of the Hamiltonian ***H***, the equality condition is met. By using the variational principle, we can think of the complicated Hamiltonian problem into a search for global minima of the system. 
+Variational principle is the basic reasoning behind the Variational Quantum Eigensolver algorithm (hence its name). Used also in quantum chemical calculations on conventional computers, this principle simply allows us to establish some trial wavefunctions, and each and every trial wavefunctions should follow this relation: ***E<sub>0</sub> &leq; <&Psi;&vert;H&vert;&Psi;> / <&Psi;&vert;&Psi;>*** . Of course when ***&Psi;*** is exactly the solution of the Hamiltonian ***H***, the equality condition is met. By using the variational principle, we can think of the complicated Hamiltonian problem into a search for global minima of the system. 
 
 ### Variational Quantum Eigensolver
 
