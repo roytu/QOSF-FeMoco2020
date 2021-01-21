@@ -750,6 +750,8 @@ class FermionicOperator:
 
         # Prep h1 and h2 arrays
 
+        print("Preparing h1 arrays...")
+
         # H1
         ints_a = molecule.mo_onee_ints
 
@@ -757,6 +759,8 @@ class FermionicOperator:
             ints_b = ints_a
         else:
             ints_b = molecule.mo_onee_ints_b
+
+        print("Preparing h2 arrays...")
         
         # H2
         ints_aa = np.einsum('ijkl->ljik', molecule.mo_eri_ints)
@@ -772,8 +776,10 @@ class FermionicOperator:
 
         ######## REMOVE STEP FOR H1 ########
 
-        mask_h1_a_i, mask_h1_a_j = np.meshgrid(nonremoved_list_a, nonremoved_list_a, indexing='ij')
-        mask_h1_b_i, mask_h1_b_j = np.meshgrid(nonremoved_list_b, nonremoved_list_b, indexing='ij')
+        print("Starting remove step for h1...")
+
+        mask_h1_a_i, mask_h1_a_j = np.meshgrid(nonremoved_list_a, nonremoved_list_a, indexing='ij', sparse=True)
+        mask_h1_b_i, mask_h1_b_j = np.meshgrid(nonremoved_list_b, nonremoved_list_b, indexing='ij', sparse=True)
 
         h1_a = ints_a[mask_h1_a_i, mask_h1_a_j]
         h1_b = ints_b[mask_h1_b_i, mask_h1_b_j]
@@ -800,15 +806,81 @@ class FermionicOperator:
 
         ######## REMOVE STEP FOR H2 ########
 
-        mask_h2_aa_i, mask_h2_aa_j, mask_h2_aa_k, mask_h2_aa_l = np.meshgrid(nonremoved_list_a, nonremoved_list_a, nonremoved_list_a, nonremoved_list_a, indexing='ij')
-        mask_h2_ab_i, mask_h2_ab_j, mask_h2_ab_k, mask_h2_ab_l = np.meshgrid(nonremoved_list_a, nonremoved_list_b, nonremoved_list_b, nonremoved_list_a, indexing='ij')
-        mask_h2_ba_i, mask_h2_ba_j, mask_h2_ba_k, mask_h2_ba_l = np.meshgrid(nonremoved_list_b, nonremoved_list_a, nonremoved_list_a, nonremoved_list_b, indexing='ij')
-        mask_h2_bb_i, mask_h2_bb_j, mask_h2_bb_k, mask_h2_bb_l = np.meshgrid(nonremoved_list_b, nonremoved_list_b, nonremoved_list_b, nonremoved_list_b, indexing='ij')
+        print("Starting remove step for h2...")
 
-        h2_aa = ints_aa[mask_h2_aa_i, mask_h2_aa_j, mask_h2_aa_k, mask_h2_aa_l]
-        h2_ba = ints_ba[mask_h2_ba_i, mask_h2_ba_j, mask_h2_ba_k, mask_h2_ba_l]
-        h2_ab = ints_ab[mask_h2_ab_i, mask_h2_ab_j, mask_h2_ab_k, mask_h2_ab_l]
-        h2_bb = ints_bb[mask_h2_bb_i, mask_h2_bb_j, mask_h2_bb_k, mask_h2_bb_l]
+        print("Generating h2_aa...")
+        mi, mj, mk, ml = np.meshgrid(nonremoved_list_a, nonremoved_list_a, nonremoved_list_a, nonremoved_list_a, indexing='ij', copy=False)
+        h2_aa = ints_aa[mi, mj, mk, ml]
+
+        print("Generating h2_ab...")
+        mi, mj, mk, ml = np.meshgrid(nonremoved_list_a, nonremoved_list_b, nonremoved_list_b, nonremoved_list_a, indexing='ij', copy=False)
+        h2_ab = ints_ab[mi, mj, mk, ml]
+
+        print("Generating h2_ba...")
+        mi, mj, mk, ml = np.meshgrid(nonremoved_list_b, nonremoved_list_a, nonremoved_list_a, nonremoved_list_b, indexing='ij', copy=False)
+        h2_ba = ints_ba[mi, mj, mk, ml]
+
+        print("Generating h2_bb...")
+        mi, mj, mk, ml = np.meshgrid(nonremoved_list_b, nonremoved_list_b, nonremoved_list_b, nonremoved_list_b, indexing='ij', copy=False)
+        h2_bb = ints_bb[mi, mj, mk, ml]
+
+        # Alias for readability
+        #a_s = nonremoved_list_a
+        #b_s = nonremoved_list_b
+
+        #na = len(nonremoved_list_a)
+        #nb = len(nonremoved_list_b)
+
+        #print("Shape:")
+        #print("=" * 20)
+        #print("na: " + str(na))
+        #print("nb: " + str(nb))
+        #print("")
+
+        #print("Generating h2_aa...")
+        #print("Generating zeros array...")
+        #h2_aa = np.zeros((na, na, na, na))
+        #print("Assigning array elements...")
+        #for ni, i in enumerate(a_s):
+        #    for nj, j in enumerate(a_s):
+        #        print("Progress: ni = " + str(ni) + " nj = " + str(nj))
+        #        for nk, k in enumerate(a_s):
+        #            for nl, l in enumerate(a_s):
+        #                h2_aa[ni, nj, nk, nl] = ints_aa[i, j, k, l]
+
+        #print("Generating h2_ab...")
+        #print("Generating zeros array...")
+        #h2_ab = np.zeros((na, nb, nb, na))
+        #print("Assigning array elements...")
+        #for ni, i in enumerate(a_s):
+        #    for nj, j in enumerate(b_s):
+        #        print("Progress: ni = " + str(ni) + " nj = " + str(nj))
+        #        for nk, k in enumerate(b_s):
+        #            for nl, l in enumerate(a_s):
+        #                h2_ab[ni, nj, nk, nl] = ints_ab[i, j, k, l]
+
+        #print("Generating h2_ba...")
+        #print("Generating zeros array...")
+        #h2_ba = np.zeros((nb, na, na, nb))
+        #print("Assigning array elements...")
+        #for ni, i in enumerate(b_s):
+        #    for nj, j in enumerate(a_s):
+        #        print("Progress: ni = " + str(ni) + " nj = " + str(nj))
+        #        for nk, k in enumerate(a_s):
+        #            for nl, l in enumerate(b_s):
+        #                h2_ba[ni, nj, nk, nl] = ints_ba[i, j, k, l]
+
+        #print("Generating h2_bb...")
+        #print("Generating zeros array...")
+        #h2_bb = np.zeros((nb, nb, nb, nb))
+        #print("Assigning array elements...")
+        #for ni, i in enumerate(b_s):
+        #    for nj, j in enumerate(b_s):
+        #        print("Progress: ni = " + str(ni) + " nj = " + str(nj))
+        #        for nk, k in enumerate(b_s):
+        #            for nl, l in enumerate(b_s):
+        #                h2_bb[ni, nj, nk, nl] = ints_bb[i, j, k, l]
+
 
         # Merge h2_aa, h2_bb, h2_ab, h2_ba
 
@@ -826,6 +898,7 @@ class FermionicOperator:
 
         # Note that in h_pqrs, p == s, q == r, else or the value is 0
 
+        print("Combining into h2...")
         h2 = np.zeros((new_N, new_N, new_N, new_N))
         num_a = len(nonremoved_list_a)
         h2[:num_a, :num_a, :num_a, :num_a] = h2_aa
@@ -849,6 +922,7 @@ class FermionicOperator:
         # ---- FREEZE ----
         # ================
 
+        print("Starting freeze steps...")
         N = h1.shape[0]  # Use new h1 size
 
         # Invert to get non-frozen lists

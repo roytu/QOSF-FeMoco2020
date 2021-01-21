@@ -62,7 +62,19 @@ class TestFreezeAndReduce(object):
             print("MODIFIED:\n")
             print(modified.energy_shift)
             raise Exception("energy_shift failed")
- 
+
+        # Compare qubitop
+        real_qo = real.qubitop.to_dict()
+        modified_qo = modified.qubitop.to_dict()
+
+        for real_qo_pauli, modified_qo_pauli in zip(real_qo["paulis"], modified_qo["paulis"]):
+            assert real_qo_pauli["label"] == modified_qo_pauli["label"]
+            real_coeff = real_qo_pauli["coeff"]
+            modified_coeff = modified_qo_pauli["coeff"]
+            assert np.abs(real_coeff["real"] - modified_coeff["real"]) < 1e-12
+            assert np.abs(real_coeff["imag"] - modified_coeff["imag"]) < 1e-12
+
+
     def run_real_qiskit(self):
 
         result = Result()
@@ -125,6 +137,7 @@ class TestFreezeAndReduce(object):
         
         # Generate qubit op
         qubitop = fermop.mapping('parity')
+        #import pdb; pdb.set_trace()
         #qubitop = Z2Symmetries.two_qubit_reduction(qubitop, num_particles)
 
         # Generate results
