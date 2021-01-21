@@ -404,8 +404,49 @@ The second performance bottleneck comes from the `_try_reduce_fermionic_operator
 call, which performs the actual freezing/removal:
 
 ```
-TODO
+def _try_reduce_fermionic_operator(fer_op: FermionicOperator,
+                                       freeze_list: List,
+                                       remove_list: List) -> Tuple:
+        """
+        Trying to reduce the fermionic operator w.r.t to freeze and remove list
+if provided
+
+        Args:
+            fer_op: fermionic operator
+            freeze_list: freeze list of orbitals
+            remove_list: remove list of orbitals
+
+        Returns:
+            (fermionic_operator, energy_shift, did_shift)
+        """
+        # pylint: disable=len-as-condition
+        did_shift = False
+        energy_shift = 0.0
+        if len(freeze_list) > 0:
+            fer_op, energy_shift = fer_op.fermion_mode_freezing(freeze_list)
+            did_shift = True
+        if len(remove_list) > 0:
+            fer_op = fer_op.fermion_mode_elimination(remove_list)
+        return fer_op, energy_shift, did_shift
 ```
+
+This simply runs
+[`fermion_mode_freezing()`](https://qiskit.org/documentation/_modules/qiskit/chemistry/fermionic_operator.html#FermionicOperator.fermion_mode_freezing)
+and [`fermion_mode_elimination()`](https://qiskit.org/documentation/_modules/qiskit/chemistry/fermionic_operator.html#FermionicOperator.fermion_mode_elimination)
+one after the other.  The code gets pretty hard to follow here; we'll attempt to
+describe the operations diagrammatically:
+
+TODO h2.png
+
+First, `twoe_to_spin()` combines the four sub-integrals (`mo_eri_ints` and
+variants) into a single large 4-tensor (the diagram is 2-dimensional, but is
+intended to represent a 4-dimensional cube of sorts).  Some orbitals (in red)
+are simply deleted.  The rest of the elements are handled as follows:
+
+TODO h2_frozen.png
+
+
+
 
 ## Further Work
 
