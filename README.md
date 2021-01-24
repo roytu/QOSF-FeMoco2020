@@ -64,6 +64,4 @@ Questions? Reach us at:
 * Roy Tu (kroytu [at] berkeley [dot] edu)
 * [Minsik Cho](http://linkedin.com/in/chominsik)
 
-# Footnotes
-
 [^femoco]: <https://en.wikipedia.org/wiki/FeMoco>
