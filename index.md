@@ -36,9 +36,9 @@ consumes about 1-2% of the world's energy production.  What's /not/ understood
 is how nitrogenase can break the triple-bond of N2 at atmospheric temperatures
 and pressures.
 
-$$H_2$$
+$$N_2 + 3H_2 \rightarrow 2NH_3 \quad (Haber process)$$
 
-TODO testing mathjax
+$$\ce{N2 + 16ATP + 8e- + 8H+ -> 2NH3 + H2 + 16ADP + 16}$$
 
 TODO add formula for Haber bosch TODO add formula for Femoco catalyzed nitrogen
 fixation
