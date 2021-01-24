@@ -52,8 +52,8 @@ details.
 
 # Special Thanks
 
-Special thanks to Vesselin (TODO link) for providing guidance throughout this
-project, Michał Stęchły (TODO link) for organizing the mentorship program,
+Special thanks to [Vesselin](https://www.linkedin.com/in/vgg-consulting/) for providing guidance throughout this
+project, [Michał Stęchły](https://www.mustythoughts.com/) for organizing the mentorship program,
 and the rest of the folks at the [Quantum Open Software Foundation](qosf.org)
 for their work in enabling free and open-source research for quantum computing.
 
@@ -62,7 +62,7 @@ for their work in enabling free and open-source research for quantum computing.
 Questions? Reach us at:
 
 * Roy Tu (kroytu [at] berkeley [dot] edu)
-* Minsik Cho (TODO)
+* [Minsik Cho](http://linkedin.com/in/chominsik)
 
 # Footnotes
 
