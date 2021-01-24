@@ -79,15 +79,15 @@ and the frontier orbitals can be plotted. These simulations on a classical
 computer provide us with a baseline of where things are before we explore the
 quantum computing side of this tale.
 
-[//]: # "TODO Add diagrams/visuals from DFT run"
+"TODO Add diagrams/visuals from DFT run"
 
 ### The Variational Principle
 
-Variational principle is the basic reasoning behind the Variational Quantum Eigensolver algorithm (hence its name). Used also in quantum chemical calculations on conventional computers, this principle simply allows us to establish some trial wavefunctions, and each and every trial wavefunctions should follow this relation: ***E<sub>0</sub> &leq; <&Psi;&vert;H&vert;&Psi;> / <&Psi;&vert;&Psi;>*** . Of course when ***&Psi;*** is exactly the solution of the Hamiltonian ***H***, the equality condition is met. By using the variational principle, we can think of the complicated Hamiltonian problem into a search for global minima of the system. 
+Variational principle is the basic reasoning behind the Variational Quantum Eigensolver algorithm (hence its name). Used also in quantum chemical calculations on conventional computers, this principle simply allows us to establish some trial wavefunctions, and each and every trial wavefunctions should follow this relation: ***E<sub>0</sub> &leq; < &Psi; &vert; H &vert; &Psi; > / < &Psi; &vert; &Psi; >*** . Of course when ***&Psi;*** is exactly the solution of the Hamiltonian ***H***, the equality condition is met. By using the variational principle, we can think of the complicated Hamiltonian problem into a search for global minima of the system. 
 
 ### Variational Quantum Eigensolver
 
-[//]: # "TODO Add a few words about VQE"
+Starting from the variational principle, VQE (Variational Quantum Eigensolver) pretty simply follows. This algorithm starts from some choice of initial wavefunction ***&Psi;<sub>0</sub>*** . Then, on a quantum device, the expectation value of the energy using this wavefunction, namely ***<&Psi;<sub>0</sub>&vert;H&vert;&Psi;<sub>0</sub>>*** is evaluated. Back on the classical device, the wavefunction is updated and the expectation is calculated iteratively to achieve the global minima. If the global minimum is found, variational principle allows us to conclude that this is the ground state and the expectation that was evaluated is the ground state energy.
 
 ## Project Planning
 
@@ -420,7 +420,12 @@ TODO h2_frozen.png
 
 ## Further Work
 
-TODO
+Although our approach to this problem has been largely pedagogical, it reveals where future works on the topic can be directed towards. Without major improvements in the quantum hardware, treating the full space of transition metal complexes will remain a very difficult task.
+
+ - Effective treatment of core freezing and removal of virtual orbital in Hamiltonian construction
+ - Comprehensive study of the portability of Hamiltonian reduction mechanisms used in conventional computers to quantum computer based algorithms (i.e. ECPs, pseudopotentials)
+
+TODO: expand more
 
 ## Useful Papers
 
