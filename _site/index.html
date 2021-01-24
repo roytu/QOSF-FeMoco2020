@@ -1,0 +1,519 @@
+<!DOCTYPE html>
+<html lang="en-US">
+  <head>
+
+    
+    <meta charset="UTF-8">
+
+    <script>
+        window.MathJax = {
+            tex: {
+                inlineMath: [['$', '$'], ['\\(', '\\)']],
+                packages: {'[+]': ['mhchem']}
+            },
+            loader: {load: ['[tex]/mhchem']},
+        };
+    </script>
+
+    <script src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML" type="text/javascript"></script> 
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+
+<!-- Begin Jekyll SEO tag v2.7.1 -->
+<title>Introduction | QOSF-FeMoco2020</title>
+<meta name="generator" content="Jekyll v3.9.0" />
+<meta property="og:title" content="Introduction" />
+<meta property="og:locale" content="en_US" />
+<meta name="description" content="Project for the QOSF mentorship program investigating the FeMo cofactor of nitrogenase" />
+<meta property="og:description" content="Project for the QOSF mentorship program investigating the FeMo cofactor of nitrogenase" />
+<link rel="canonical" href="http://localhost:4000/" />
+<meta property="og:url" content="http://localhost:4000/" />
+<meta property="og:site_name" content="QOSF-FeMoco2020" />
+<meta name="twitter:card" content="summary" />
+<meta property="twitter:title" content="Introduction" />
+<script type="application/ld+json">
+{"headline":"Introduction","description":"Project for the QOSF mentorship program investigating the FeMo cofactor of nitrogenase","url":"http://localhost:4000/","@type":"WebSite","name":"QOSF-FeMoco2020","@context":"https://schema.org"}</script>
+<!-- End Jekyll SEO tag -->
+
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="theme-color" content="#157878">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <link rel="stylesheet" href="/assets/css/style.css?v=3b04b796e03fd553c539bc7e84aeb339e66b71ea">
+  </head>
+  <body>
+    <a id="skip-to-content" href="#content">Skip to the content.</a>
+
+    <header class="page-header" role="banner">
+      <h1 class="project-name">Introduction</h1>
+      <h2 class="project-tagline">Project for the QOSF mentorship program investigating the FeMo cofactor of nitrogenase</h2>
+      
+        <a href="https://github.com/roytu/QOSF-FeMoco2020" class="btn">View on GitHub</a>
+      
+      
+    </header>
+
+    <main id="content" class="main-content" role="main">
+      <h2 id="introduction">Introduction</h2>
+
+<p>This post serves to aggregate what we learned from a three-month mentorship
+hosted by the Quantum Open Software Foundation <sup id="fnref:qosf" role="doc-noteref"><a href="#fn:qosf" class="footnote">1</a></sup>, through interactions
+with our mentor (Vesselin <sup id="fnref:vesselin" role="doc-noteref"><a href="#fn:vesselin" class="footnote">2</a></sup>) and the other mentees. We are forever
+grateful for the time and energy they have donated, for which none of this would
+have been possible.</p>
+
+<p>During the mentorship, we investigated the viability of simulating
+<a href="https://en.wikipedia.org/wiki/FeMoco">FeMoco</a>, a cluster of molecules in nitrogenase.  The cluster is
+responsible for the nitrogenase enzyme’s remarkable ability to catalyze nitrogen
+fixation, so there is significant interest in accurately simulating this
+molecule.  We’ve structured this post to target someone who has /some/
+background in quantum computation and computational chemistry, but may not have
+a full grasp of the process for performing this simulation, and what roadblocks
+arise.  It is more of a pedagogical journey than a textbook – you should feel
+free to skip sections as needed.  So without further ado…</p>
+
+<h2 id="problem-overview">Problem Overview</h2>
+
+<p>The purpose of this project was to calculate the ground state of various
+derivatives of FeMoco, which is this molecule:</p>
+
+<p><img src="/images/ics.png" alt="FeMoco, the active cluster for nitrogen fixation in nitrogenase" /></p>
+
+<p>So what is this and why do we care? This is a cluster that appears in
+nitrogenase, an enzyme responsible for converting gaseous nitrogen (N2) to
+ammonia (NH3) in soil.  The ammonia is then used by plants to synthesize
+chlorophyll. This process (called nitrogen fixation) is a major bottleneck for
+plant growth, and therefore food production, and there are industrial processes
+that attempt to mimic this.  The Haber-Bosch process subjects gaseous nitrogen
+to high temperatures and pressures to break the triple-bond, and produces the
+majority of the nitrogen supply available to plants today.  However, generating
+this high-pressure environment is energy-expensive, and the Haber process
+consumes about 1-2% of the world’s energy production.  What’s /not/ understood
+is how nitrogenase can break the triple-bond of N2 at atmospheric temperatures
+and pressures.</p>
+
+<p>\(N_2 + 3H_2 \rightarrow 2NH_3 \quad (Haber process)\)
+<em>Haber process (energy-expensive)</em></p>
+
+<p>\(\ce{N2 + 16ATP + 8e- + 8H+ -&gt; 2NH3 + H2 + 16ADP + 16}\)
+<em>Nitrogenase-catalyzed nitrogen fixation</em></p>
+
+<p>This is the question: How does FeMoco <em>actually</em> catalyze nitrogen fixation, and
+can we scale this process to replace Haber-Bosch?</p>
+
+<h2 id="background-info">Background Info</h2>
+
+<p>To make this concrete – we know that the reaction starts with N2 and FeMoco,
+and somehow ends up producing NH3 and FeMoco:</p>
+
+<p>TODO N2 + Femoco -&gt; intermediates -&gt; NH3 + Femoco image in Azobacter vinelandii</p>
+
+<p>TODO We want to find what are the chemical intermediates TODO Eyring rate
+equation TODO Energy spectrum TODO Lowest energy not necessarily ideal
+(reference Ian Dance paper)</p>
+
+<h3 id="quantum-chemistry-using-classical-computers">Quantum Chemistry using Classical Computers</h3>
+
+<p>Simulating quantum mechanical systems, such as molecules, has been an important quest in the theoretical
+chemistry community for some time, and numerous algorithms of different cost and
+underlying theories are actively researched. For transition metal complexes, due
+to their complexity, a common choice is to use DFT (density functional theory).
+Starting from the many-body setup with multiple electrons, protons, and neutrons
+interacting in the target system, DFT operates on the electron density as a
+variable, reducing down some complexity of the problem. Based on this
+background, DFT has some record of treating some moderately-sized molecules
+chemists are interested in with reasonable cost and accuracy in predicting key
+chemical properties.</p>
+
+<p>Even with these simplifications, the entire FeMoco complex is quite difficult to
+simulate with DFT using basis sets that are detailed enough, even with clever
+choice of the functionals. Because our aim is to pedagogically explore the steps
+as if we had the resources to complete the simulation on conventional and
+quantum computers, the simple <em>(and fictitious)</em> complex of
+Fe<sub>2</sub>S<sub>2</sub>, which comprises the core of FeMoco, was used as a
+model system. Using Orca[^orca] and Avogadro[^avogadro], starting from initial
+geometries deposited from crystallography, geometry optimization can be
+performed using the functionals and basis sets (TPSSh and def2-TZVPP in our run)
+and the frontier orbitals can be plotted. These simulations on a classical
+computer provide us with a baseline of where things are before we explore the
+quantum computing side of this tale.</p>
+
+<p>“TODO Add diagrams/visuals from DFT run”</p>
+
+<h3 id="the-variational-principle">The Variational Principle</h3>
+
+<p>Variational principle is the basic reasoning behind the Variational Quantum Eigensolver algorithm (hence its name). Used also in quantum chemical calculations on conventional computers, this principle simply allows us to establish some trial wavefunctions, and each and every trial wavefunctions should follow this relation: <strong><em>E<sub>0</sub> &amp;leq; &lt; Ψ &amp;vert; H &amp;vert; Ψ &gt; / &lt; Ψ &amp;vert; Ψ &gt;</em></strong> . Of course when <strong><em>Ψ</em></strong> is exactly the solution of the Hamiltonian <strong><em>H</em></strong>, the equality condition is met. By using the variational principle, we can think of the complicated Hamiltonian problem into a search for global minima of the system.</p>
+
+<h3 id="variational-quantum-eigensolver">Variational Quantum Eigensolver</h3>
+
+<p>Starting from the variational principle, VQE (Variational Quantum Eigensolver) pretty simply follows. This algorithm starts from some choice of initial wavefunction <strong><em>Ψ<sub>0</sub></em></strong> . Then, on a quantum device, the expectation value of the energy using this wavefunction, namely <strong><em>&lt;Ψ<sub>0</sub>&amp;vert;H&amp;vert;Ψ<sub>0</sub>&gt;</em></strong> is evaluated. Back on the classical device, the wavefunction is updated and the expectation is calculated iteratively to achieve the global minima. If the global minimum is found, variational principle allows us to conclude that this is the ground state and the expectation that was evaluated is the ground state energy.</p>
+
+<h2 id="project-planning">Project Planning</h2>
+
+<p>TODO</p>
+
+<ol>
+  <li>Run SCF on FeMoco</li>
+  <li>Generate Hamiltonian</li>
+  <li>Run VQE on hamiltonian</li>
+</ol>
+
+<h2 id="extracting-the-molecule--defining-the-fock-space">Extracting the Molecule / Defining the Fock Space</h2>
+
+<p>The first step in analyzing the molecule is, naturally, to find the geometry for
+it. The first structural models appeared in 1978<sup id="fnref:cramer" role="doc-noteref"><a href="#fn:cramer" class="footnote">3</a></sup>, with the six-atom
+iron cage discovered in 1992. In 2002, a central atom within the cage was
+discovered, which was widely believed to be nitrogen. It wasn’t until 2011 when
+we’d have the correct stoichiometry, when the central atom was determined to be
+carbon <sup id="fnref:spatzal" role="doc-noteref"><a href="#fn:spatzal" class="footnote">4</a></sup>.</p>
+
+<p>All of this is to say, a lot of the literature and geometries for FeMoco are
+incorrect, and it’s important to find a structure from after 2011. Our analysis
+uses <a href="https://www.rcsb.org/structure/3u7q">3U7Q</a>, a protein sample from
+nitrogenase in Azotobacter vinelandii. The 3D view confirms that this has the
+correct FeMoco cluster, labeled ICS 6496.</p>
+
+<p>TODO add image of ICS 6496</p>
+
+<h3 id="sidenote--hartree-fock-vs-casscf">Sidenote : Hartree-Fock vs. CASSCF</h3>
+
+<p>TODO</p>
+
+<h2 id="generating-the-hamiltonian">Generating the Hamiltonian</h2>
+
+<p>This is the step that seemed easy at the outset of the project, but we
+ultimately didn’t give enough respect to – most of the three months were spent
+here.  The path for setting up VQE involves:</p>
+
+<ol>
+  <li>Calculating the one-and-two body integrals for the second quantized
+electronic Hamiltonian</li>
+  <li>Constructing a fermionic operator</li>
+  <li>Converting the fermionic operator into a qubit operator</li>
+</ol>
+
+<p>The problem is that the two-body term in the electronic Hamiltonian is a
+4-tensor over the number of orbitals in the Fock space, which scales as O(N^4)
+(where N is the number of spin-orbitals).  A molecule such as FeMoco, with ~200
+orbitals, will have 400 spin-orbitals, meaning the two-body tensor will have
+25,600,000,000 elements.  If we store each element as a 64-bit floating point (8
+bytes), simply storing the matrix will cost 204,800,000,000 bytes = 204 GiB.
+This is also too large to store in RAM, so mathematical operations on it become
+expensive.</p>
+
+<p>There are a few simplifications we can make.  The first one we tried was using
+32-bit floating points instead of 64-bit, which should halve the storage
+requirements to ~100 GiB.  However, the biggest simplification involved freezing
+and removing irrelevant orbitals.</p>
+
+<p>A converged ROHF run on FeMoco yields the following orbitals:</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>TODO orbital energies
+</code></pre></div></div>
+
+<p>This result was gathered by using PySCF’s
+<a href="https://sunqm.github.io/pyscf/scf.html#pyscf.scf.hf.SCF.analyze"><code class="language-plaintext highlighter-rouge">scf.analyze()</code></a>.
+The assumption is that electrons in the low-energy orbitals will effectively
+never leave – hence, their effect on the dynamics of the rest of the structure
+can be represented as a static electric potential.  Similarly, the high-energy
+orbitals are unlikely to be filled, and can be removed.</p>
+
+<p>It is not clear to us how one can safely determine how many orbitals can be
+frozen or removed.  We more or less arbitrarily chose to freeze orbitals 1-184,
+and remove orbitals 190-239, leaving an active space of 6 orbitals.  This is
+almost certainly too severe of an approximation, but the priority was to
+generate the minimum-viable VQE circuit, and then slowly relax the
+optimizations.  All of the orbitals above #58 or so are nearly degenerate in
+energy, so a proper analysis will likely need to include them in the active
+space.</p>
+
+<p>Once we have the reduced active space, we can choose a proper mapping
+(Bravyi-Kitaev or Jordan-Wigner) to generate a qubit operator, and then the
+corresponding VQE circuit.  Unfortunately, the freezing and removal steps are
+themselves non-trivial due to the memory requirements mentioned above, and
+require a proper analysis.</p>
+
+<h2 id="details-on-qiskit--pyscf-libraries">Details on Qiskit / PySCF libraries</h2>
+
+<p>In Qiskit-Aqua 0.8.1, freezing and reduction of orbitals is performed by the
+<a href="https://qiskit.org/documentation/stubs/qiskit.chemistry.transformations.FermionicTransformation.html">FermionicTransformation</a> class.</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>class FermionicTransformation(
+    transformation=&lt;FermionicTransformationType.FULL: 'full'&gt;,
+    qubit_mapping=&lt;FermionicQubitMappingType.PARITY: 'parity'&gt;,
+    two_qubit_reduction=True,
+    freeze_core=False,
+    orbital_reduction=None,
+    z2symmetry_reduction=None):
+
+    A transformation from a fermionic problem, represented by a driver, to a qubit operator.
+</code></pre></div></div>
+
+<p>The <code class="language-plaintext highlighter-rouge">orbital_reduction</code> parameter can be used to specify which orbitals to
+freeze/remove.  The user then calls
+<a href="https://qiskit.org/documentation/stubs/qiskit.chemistry.transformations.FermionicTransformation.html#qiskit.chemistry.transformations.FermionicTransformation.transform"><code class="language-plaintext highlighter-rouge">.transform(driver)</code></a> to 
+generate the qubit operator.</p>
+
+<p>If we use this straight with our molecule, we run into memory allocation errors.
+So let us look at the implementation of this function to see where we can
+reduce the memory requirements.</p>
+
+<p>The
+<a href="https://qiskit.org/documentation/_modules/qiskit/chemistry/transformations/fermionic_transformation.html#FermionicTransformation.__init__"><code class="language-plaintext highlighter-rouge">FermionicTransformation()</code></a> constructor itself is
+uninteresting, as it only assigns parameters.  The meat of the function happens
+in
+<a href="https://qiskit.org/documentation/_modules/qiskit/chemistry/transformations/fermionic_transformation.html#FermionicTransformation.transform"><code class="language-plaintext highlighter-rouge">.transform()</code></a>:</p>
+
+<div class="language-py highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">def</span> <span class="nf">transform</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">driver</span><span class="p">:</span> <span class="n">BaseDriver</span><span class="p">,</span>
+                  <span class="n">aux_operators</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="n">FermionicOperator</span><span class="p">]]</span> <span class="o">=</span> <span class="bp">None</span>
+                  <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">OperatorBase</span><span class="p">,</span> <span class="n">List</span><span class="p">[</span><span class="n">OperatorBase</span><span class="p">]]:</span>
+        <span class="p">...</span>
+        <span class="n">q_molecule</span> <span class="o">=</span> <span class="n">driver</span><span class="p">.</span><span class="n">run</span><span class="p">()</span>
+        <span class="n">ops</span><span class="p">,</span> <span class="n">aux_ops</span> <span class="o">=</span> <span class="bp">self</span><span class="p">.</span><span class="n">_do_transform</span><span class="p">(</span><span class="n">q_molecule</span><span class="p">,</span> <span class="n">aux_operators</span><span class="p">)</span>
+
+        <span class="p">...</span>
+        <span class="k">return</span> <span class="n">ops</span><span class="p">,</span> <span class="n">aux_ops</span>
+</code></pre></div></div>
+
+<p>This calls <code class="language-plaintext highlighter-rouge">driver.run()</code> (which is PySCF’s <code class="language-plaintext highlighter-rouge">.kernel()</code>) and then passes the
+result to <code class="language-plaintext highlighter-rouge">self._do_transform()</code>:</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code> def _do_transform(self, qmolecule: QMolecule,
+                      aux_operators: Optional[List[FermionicOperator]] = None
+                      ) -&gt; Tuple[WeightedPauliOperator, List[WeightedPauliOperator]]:
+
+        ...
+        # In the combined list any orbitals that are occupied are added to a freeze list and an
+        # energy is stored from these orbitals to be added later.
+        # Unoccupied orbitals are just discarded.
+        ...
+
+        # construct the fermionic operator
+        fer_op = FermionicOperator(h1=qmolecule.one_body_integrals, h2=qmolecule.two_body_integrals)
+
+        # try to reduce it according to the freeze and remove list
+        fer_op, self._energy_shift, did_shift = \
+            FermionicTransformation._try_reduce_fermionic_operator(fer_op, freeze_list, remove_list)
+
+        ...
+</code></pre></div></div>
+
+<p>Here we run into the first computational bottleneck.
+<a href="https://qiskit.org/documentation/_modules/qiskit/chemistry/qmolecule.html#QMolecule"><code class="language-plaintext highlighter-rouge">qmolecule.two_body_integrals</code></a> is actually not a variable; it’s a method defined as such:</p>
+
+<div class="language-py highlighter-rouge"><div class="highlight"><pre class="highlight"><code> <span class="o">@</span><span class="nb">property</span>
+    <span class="k">def</span> <span class="nf">two_body_integrals</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="s">""" Returns two body electron integrals. """</span>
+        <span class="k">return</span> <span class="n">QMolecule</span><span class="p">.</span><span class="n">twoe_to_spin</span><span class="p">(</span><span class="bp">self</span><span class="p">.</span><span class="n">mo_eri_ints</span><span class="p">,</span> <span class="bp">self</span><span class="p">.</span><span class="n">mo_eri_ints_bb</span><span class="p">,</span> <span class="bp">self</span><span class="p">.</span><span class="n">mo_eri_ints_ba</span><span class="p">)</span>
+</code></pre></div></div>
+
+<p><code class="language-plaintext highlighter-rouge">self.mo_eri_ints</code>, <code class="language-plaintext highlighter-rouge">self.mo_eri_ints_bb</code>, and <code class="language-plaintext highlighter-rouge">self.mo_eri_ints_ba</code> are <code class="language-plaintext highlighter-rouge">(N, N,
+N, N)</code>-dimensional numpy arrays representing the two-body tensor, where N is the
+number of spatial orbitals.  Each matrix represents a subsection of the full
+spin-orbital Fock space, in this way:</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>TODO better diagram
+
+       alpha              beta
+       ----------------&gt; ----------------&gt;
+     | -----------------------------------
+  a  | |                |                |
+  l  | |                |                |
+  p  | | mo_eri_ints    | mo_eri_ints_ba |
+  h  | |                |                |
+  a  v |                |                |
+       -----------------------------------
+  b  | |                |                |
+  e  | |                |                |
+  t  | | mo_eri_ints_ab | mo_eri_ints_bb |   (where mo_eri_ints_ab = mo_eri_ints_ba.transpose() )
+  a  | |                |                |
+     v |                |                |
+       -----------------------------------
+</code></pre></div></div>
+
+<p><code class="language-plaintext highlighter-rouge">twoe_to_spin()</code> aggregates the spatial matrix into one large spin-orbital
+matrix, but in doing so doubles each of the 4 dimensions, resulting in a
+16-fold increase in memory requirements.  This can be seen in the source for
+<a href="https://qiskit.org/documentation/_modules/qiskit/chemistry/qmolecule.html#QMolecule.twoe_to_spin"><code class="language-plaintext highlighter-rouge">twoe_to_spin()</code></a>:</p>
+
+<div class="language-py highlighter-rouge"><div class="highlight"><pre class="highlight"><code> <span class="k">def</span> <span class="nf">twoe_to_spin</span><span class="p">(</span><span class="n">mohijkl</span><span class="p">,</span> <span class="n">mohijkl_bb</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">mohijkl_ba</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">threshold</span><span class="o">=</span><span class="mf">1E-12</span><span class="p">):</span>
+        <span class="s">"""Convert two-body MO integrals to spin orbital basis
+
+        Takes two body integrals in molecular orbital basis and returns
+        integrals in spin orbitals ready for use as coefficients to
+        two body terms in 2nd quantized Hamiltonian.
+
+        Args:
+            mohijkl (numpy.ndarray): Two body orbitals in molecular basis
+(AlphaAlpha)
+            mohijkl_bb (numpy.ndarray): Two body orbitals in molecular basis
+(BetaBeta)
+            mohijkl_ba (numpy.ndarray): Two body orbitals in molecular basis
+(BetaAlpha)
+            threshold (float): Threshold value for assignments
+        Returns:
+            numpy.ndarray: Two body integrals in spin orbitals
+        """</span>
+        <span class="n">ints_aa</span> <span class="o">=</span> <span class="n">numpy</span><span class="p">.</span><span class="n">einsum</span><span class="p">(</span><span class="s">'ijkl-&gt;ljik'</span><span class="p">,</span> <span class="n">mohijkl</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">mohijkl_bb</span> <span class="ow">is</span> <span class="bp">None</span> <span class="ow">or</span> <span class="n">mohijkl_ba</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="n">ints_bb</span> <span class="o">=</span> <span class="n">ints_ba</span> <span class="o">=</span> <span class="n">ints_ab</span> <span class="o">=</span> <span class="n">ints_aa</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">ints_bb</span> <span class="o">=</span> <span class="n">numpy</span><span class="p">.</span><span class="n">einsum</span><span class="p">(</span><span class="s">'ijkl-&gt;ljik'</span><span class="p">,</span> <span class="n">mohijkl_bb</span><span class="p">)</span>
+            <span class="n">ints_ba</span> <span class="o">=</span> <span class="n">numpy</span><span class="p">.</span><span class="n">einsum</span><span class="p">(</span><span class="s">'ijkl-&gt;ljik'</span><span class="p">,</span> <span class="n">mohijkl_ba</span><span class="p">)</span>
+            <span class="n">ints_ab</span> <span class="o">=</span> <span class="n">numpy</span><span class="p">.</span><span class="n">einsum</span><span class="p">(</span><span class="s">'ijkl-&gt;ljik'</span><span class="p">,</span> <span class="n">mohijkl_ba</span><span class="p">.</span><span class="n">transpose</span><span class="p">())</span>
+
+        <span class="c1"># The number of spin orbitals is twice the number of orbitals
+</span>        <span class="n">norbs</span> <span class="o">=</span> <span class="n">mohijkl</span><span class="p">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">nspin_orbs</span> <span class="o">=</span> <span class="mi">2</span><span class="o">*</span><span class="n">norbs</span>
+
+        <span class="c1"># The spin orbitals are mapped in the following way:
+</span>        <span class="c1">#       Orbital zero, spin up mapped to qubit 0
+</span>        <span class="c1">#       Orbital one,  spin up mapped to qubit 1
+</span>        <span class="c1">#       Orbital two,  spin up mapped to qubit 2
+</span>        <span class="c1">#            .
+</span>        <span class="c1">#            .
+</span>        <span class="c1">#       Orbital zero, spin down mapped to qubit norbs
+</span>        <span class="c1">#       Orbital one,  spin down mapped to qubit norbs+1
+</span>        <span class="c1">#            .
+</span>        <span class="c1">#            .
+</span>        <span class="c1">#            .
+</span>
+        <span class="c1"># Two electron terms
+</span>        <span class="n">moh2_qubit</span> <span class="o">=</span> <span class="n">numpy</span><span class="p">.</span><span class="n">zeros</span><span class="p">([</span><span class="n">nspin_orbs</span><span class="p">,</span> <span class="n">nspin_orbs</span><span class="p">,</span> <span class="n">nspin_orbs</span><span class="p">,</span>
+<span class="n">nspin_orbs</span><span class="p">])</span>
+        <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">nspin_orbs</span><span class="p">):</span>  <span class="c1"># pylint: disable=invalid-name
+</span>            <span class="k">for</span> <span class="n">q</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">nspin_orbs</span><span class="p">):</span>
+                <span class="k">for</span> <span class="n">r</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">nspin_orbs</span><span class="p">):</span>
+                    <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">nspin_orbs</span><span class="p">):</span>  <span class="c1"># pylint: disable=invalid-name
+</span>                        <span class="n">spinp</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">p</span><span class="o">/</span><span class="n">norbs</span><span class="p">)</span>
+                        <span class="n">spinq</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">q</span><span class="o">/</span><span class="n">norbs</span><span class="p">)</span>
+                        <span class="n">spinr</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">r</span><span class="o">/</span><span class="n">norbs</span><span class="p">)</span>
+                        <span class="n">spins</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">s</span><span class="o">/</span><span class="n">norbs</span><span class="p">)</span>
+                        <span class="k">if</span> <span class="n">spinp</span> <span class="o">!=</span> <span class="n">spins</span><span class="p">:</span>
+                            <span class="k">continue</span>
+                        <span class="k">if</span> <span class="n">spinq</span> <span class="o">!=</span> <span class="n">spinr</span><span class="p">:</span>
+                            <span class="k">continue</span>
+                        <span class="k">if</span> <span class="n">spinp</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                            <span class="n">ints</span> <span class="o">=</span> <span class="n">ints_aa</span> <span class="k">if</span> <span class="n">spinq</span> <span class="o">==</span> <span class="mi">0</span> <span class="k">else</span> <span class="n">ints_ba</span>
+                        <span class="k">else</span><span class="p">:</span>
+                            <span class="n">ints</span> <span class="o">=</span> <span class="n">ints_ab</span> <span class="k">if</span> <span class="n">spinq</span> <span class="o">==</span> <span class="mi">0</span> <span class="k">else</span> <span class="n">ints_bb</span>
+                        <span class="n">orbp</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">p</span> <span class="o">%</span> <span class="n">norbs</span><span class="p">)</span>
+                        <span class="n">orbq</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">q</span> <span class="o">%</span> <span class="n">norbs</span><span class="p">)</span>
+                        <span class="n">orbr</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">r</span> <span class="o">%</span> <span class="n">norbs</span><span class="p">)</span>
+                        <span class="n">orbs</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">s</span> <span class="o">%</span> <span class="n">norbs</span><span class="p">)</span>
+                        <span class="k">if</span> <span class="nb">abs</span><span class="p">(</span><span class="n">ints</span><span class="p">[</span><span class="n">orbp</span><span class="p">,</span> <span class="n">orbq</span><span class="p">,</span> <span class="n">orbr</span><span class="p">,</span> <span class="n">orbs</span><span class="p">])</span> <span class="o">&gt;</span> <span class="n">threshold</span><span class="p">:</span>
+                            <span class="n">moh2_qubit</span><span class="p">[</span><span class="n">p</span><span class="p">,</span> <span class="n">q</span><span class="p">,</span> <span class="n">r</span><span class="p">,</span> <span class="n">s</span><span class="p">]</span> <span class="o">=</span> <span class="o">-</span><span class="mf">0.5</span><span class="o">*</span><span class="n">ints</span><span class="p">[</span><span class="n">orbp</span><span class="p">,</span> <span class="n">orbq</span><span class="p">,</span> <span class="n">orbr</span><span class="p">,</span>
+<span class="n">orbs</span><span class="p">]</span>
+
+        <span class="k">return</span> <span class="n">moh2_qubit</span>
+
+</code></pre></div></div>
+
+<p>The full spin-orbital array is allocated in this line:</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>moh2_qubit = numpy.zeros([nspin_orbs, nspin_orbs, nspin_orbs, nspin_orbs])
+</code></pre></div></div>
+
+<p>and each value in the <code class="language-plaintext highlighter-rouge">(2N, 2N, 2N, 2N)</code>-dimensional array is computed and
+stored.  This upfront performance penalty is superfluous with our use case, where
+most of the orbitals will be removed.  Additionally, numpy arrays generally
+don’t want to be iterated over with Python loops – their performance benefits
+come from looping at the C level, where the reduced overhead leads to more
+frequent cache hits.  The current implementation does have some benefits, as it
+prevents having to allocate large mesh grids and is much easier to read than
+fully vectorized code.  More on this later.</p>
+
+<p>The second performance bottleneck comes from the <code class="language-plaintext highlighter-rouge">_try_reduce_fermionic_operator()</code>
+call, which performs the actual freezing/removal:</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>def _try_reduce_fermionic_operator(fer_op: FermionicOperator,
+                                       freeze_list: List,
+                                       remove_list: List) -&gt; Tuple:
+        """
+        Trying to reduce the fermionic operator w.r.t to freeze and remove list
+if provided
+
+        Args:
+            fer_op: fermionic operator
+            freeze_list: freeze list of orbitals
+            remove_list: remove list of orbitals
+
+        Returns:
+            (fermionic_operator, energy_shift, did_shift)
+        """
+        # pylint: disable=len-as-condition
+        did_shift = False
+        energy_shift = 0.0
+        if len(freeze_list) &gt; 0:
+            fer_op, energy_shift = fer_op.fermion_mode_freezing(freeze_list)
+            did_shift = True
+        if len(remove_list) &gt; 0:
+            fer_op = fer_op.fermion_mode_elimination(remove_list)
+        return fer_op, energy_shift, did_shift
+</code></pre></div></div>
+
+<p>This simply runs
+<a href="https://qiskit.org/documentation/_modules/qiskit/chemistry/fermionic_operator.html#FermionicOperator.fermion_mode_freezing"><code class="language-plaintext highlighter-rouge">fermion_mode_freezing()</code></a>
+and <a href="https://qiskit.org/documentation/_modules/qiskit/chemistry/fermionic_operator.html#FermionicOperator.fermion_mode_elimination"><code class="language-plaintext highlighter-rouge">fermion_mode_elimination()</code></a>
+one after the other.  The code gets pretty hard to follow here; we’ll attempt to
+describe the operations diagrammatically:</p>
+
+<p>TODO h2.png</p>
+
+<p>First, <code class="language-plaintext highlighter-rouge">twoe_to_spin()</code> combines the four sub-integrals (<code class="language-plaintext highlighter-rouge">mo_eri_ints</code> and
+variants) into a single large 4-tensor (the diagram is 2-dimensional, but is
+intended to represent a 4-dimensional cube of sorts).  Some orbitals (in red)
+are simply deleted.  The rest of the elements are handled as follows:</p>
+
+<p>TODO h2_frozen.png</p>
+
+<h2 id="further-work">Further Work</h2>
+
+<p>Although our approach to this problem has been largely pedagogical, it reveals where future works on the topic can be directed towards. Without major improvements in the quantum hardware, treating the full space of transition metal complexes will remain a very difficult task.</p>
+
+<ul>
+  <li>Effective treatment of core freezing and removal of virtual orbital in Hamiltonian construction</li>
+  <li>Comprehensive study of the portability of Hamiltonian reduction mechanisms used in conventional computers to quantum computer based algorithms (i.e. ECPs, pseudopotentials)</li>
+</ul>
+
+<p>TODO: expand more</p>
+
+<h2 id="useful-papers">Useful Papers</h2>
+
+<p>TODO</p>
+
+<h2 id="footnotes">Footnotes</h2>
+
+<p>DeBeer S. The discovery of Mo(III) in FeMoco: reuniting enzyme and model
+chemistry. J Biol Inorg Chem. 2015;20(2):447-460. doi:10.1007/s00775-014-1230-6
+[^orca]: <a href="https://orcaforum.kofo.mpg.de/">https://orcaforum.kofo.mpg.de/</a>
+[^avogadro]: <a href="https://avogadro.cc/">https://avogadro.cc/</a></p>
+<div class="footnotes" role="doc-endnotes">
+  <ol>
+    <li id="fn:qosf" role="doc-endnote">
+      <p><a href="https://qosf.org/qc_mentorship/">https://qosf.org/qc_mentorship/</a> <a href="#fnref:qosf" class="reversefootnote" role="doc-backlink">&#8617;</a></p>
+    </li>
+    <li id="fn:vesselin" role="doc-endnote">
+      <TODO>
+</TODO>
+      <p><a href="#fnref:vesselin" class="reversefootnote" role="doc-backlink">&#8617;</a></p>
+    </li>
+    <li id="fn:cramer" role="doc-endnote">
+      <p>. Cramer SP, Hodgson KO, Gillum WO, Mortenson LE. J Am Chem Soc. <a href="#fnref:cramer" class="reversefootnote" role="doc-backlink">&#8617;</a></p>
+    </li>
+    <li id="fn:spatzal" role="doc-endnote">
+      <p><a href="https://science.sciencemag.org/content/334/6058/940">https://science.sciencemag.org/content/334/6058/940</a> <a href="#fnref:spatzal" class="reversefootnote" role="doc-backlink">&#8617;</a></p>
+    </li>
+  </ol>
+</div>
+
+
+      <footer class="site-footer">
+        
+          <span class="site-footer-owner"><a href="https://github.com/roytu/QOSF-FeMoco2020">QOSF-FeMoco2020</a> is maintained by <a href="https://github.com/roytu">roytu</a>.</span>
+        
+        <span class="site-footer-credits">This page was generated by <a href="https://pages.github.com">GitHub Pages</a>.</span>
+      </footer>
+    </main>
+  </body>
+</html>
+
