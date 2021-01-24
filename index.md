@@ -36,6 +36,10 @@ consumes about 1-2% of the world's energy production.  What's /not/ understood
 is how nitrogenase can break the triple-bond of N2 at atmospheric temperatures
 and pressures.
 
+$$H_2$$
+
+TODO testing mathjax
+
 TODO add formula for Haber bosch TODO add formula for Femoco catalyzed nitrogen
 fixation
 
