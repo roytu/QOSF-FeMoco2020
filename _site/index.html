@@ -5,23 +5,26 @@
     
     <meta charset="UTF-8">
 
-    <script>
-        window.MathJax = {
-            tex: {
-                inlineMath: [['$', '$'], ['\\(', '\\)']],
-                packages: {'[+]': ['mhchem']}
-            },
-            loader: {load: ['[tex]/mhchem']},
-        };
-    </script>
+    <script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+        tex2jax: {
+            inlineMath: [ ['$','$'], ["\\(","\\)"] ],
+            processEscapes: true
+        }
+    });
+</script>
+<script
+    type="text/javascript"
+    charset="utf-8"
+    src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"
+>
+</script>
 
-    <script src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML" type="text/javascript"></script> 
-    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
 
 <!-- Begin Jekyll SEO tag v2.7.1 -->
-<title>Introduction | QOSF-FeMoco2020</title>
+<title>Investigating using VQE for FeMoco | QOSF-FeMoco2020</title>
 <meta name="generator" content="Jekyll v3.9.0" />
-<meta property="og:title" content="Introduction" />
+<meta property="og:title" content="Investigating using VQE for FeMoco" />
 <meta property="og:locale" content="en_US" />
 <meta name="description" content="Project for the QOSF mentorship program investigating the FeMo cofactor of nitrogenase" />
 <meta property="og:description" content="Project for the QOSF mentorship program investigating the FeMo cofactor of nitrogenase" />
@@ -29,9 +32,9 @@
 <meta property="og:url" content="http://localhost:4000/" />
 <meta property="og:site_name" content="QOSF-FeMoco2020" />
 <meta name="twitter:card" content="summary" />
-<meta property="twitter:title" content="Introduction" />
+<meta property="twitter:title" content="Investigating using VQE for FeMoco" />
 <script type="application/ld+json">
-{"headline":"Introduction","description":"Project for the QOSF mentorship program investigating the FeMo cofactor of nitrogenase","url":"http://localhost:4000/","@type":"WebSite","name":"QOSF-FeMoco2020","@context":"https://schema.org"}</script>
+{"headline":"Investigating using VQE for FeMoco","description":"Project for the QOSF mentorship program investigating the FeMo cofactor of nitrogenase","url":"http://localhost:4000/","@type":"WebSite","name":"QOSF-FeMoco2020","@context":"https://schema.org"}</script>
 <!-- End Jekyll SEO tag -->
 
     <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -43,7 +46,7 @@
     <a id="skip-to-content" href="#content">Skip to the content.</a>
 
     <header class="page-header" role="banner">
-      <h1 class="project-name">Introduction</h1>
+      <h1 class="project-name">Investigating using VQE for FeMoco</h1>
       <h2 class="project-tagline">Project for the QOSF mentorship program investigating the FeMo cofactor of nitrogenase</h2>
       
         <a href="https://github.com/roytu/QOSF-FeMoco2020" class="btn">View on GitHub</a>
@@ -52,7 +55,9 @@
     </header>
 
     <main id="content" class="main-content" role="main">
-      <h2 id="introduction">Introduction</h2>
+      <h1 id="investigating-using-vqe-for-femoco">Investigating using VQE for FeMoco</h1>
+
+<h2 id="introduction">Introduction</h2>
 
 <p>This post serves to aggregate what we learned from a three-month mentorship
 hosted by the Quantum Open Software Foundation <sup id="fnref:qosf" role="doc-noteref"><a href="#fn:qosf" class="footnote">1</a></sup>, through interactions
@@ -70,6 +75,7 @@ a full grasp of the process for performing this simulation, and what roadblocks
 arise.  It is more of a pedagogical journey than a textbook – you should feel
 free to skip sections as needed.  So without further ado…</p>
 
+<p>\(\require{mhchem}\)</p>
 <h2 id="problem-overview">Problem Overview</h2>
 
 <p>The purpose of this project was to calculate the ground state of various
@@ -101,14 +107,22 @@ can we scale this process to replace Haber-Bosch?</p>
 
 <h2 id="background-info">Background Info</h2>
 
-<p>To make this concrete – we know that the reaction starts with N2 and FeMoco,
-and somehow ends up producing NH3 and FeMoco:</p>
+<p>To make this concrete – we know that the reaction starts with \(N_2\) binding
+with FeMoco, somewhere on the substrate, <em>some</em> process occurs, and \(NH_3\)
+leaves, with FeMoco itself unmodified:</p>
 
-<p>TODO N2 + Femoco -&gt; intermediates -&gt; NH3 + Femoco image in Azobacter vinelandii</p>
+<p><img src="./images/nitrogenase_catalysis.png" alt="A (simplified) process for nitrogen fixation in Azobacter vinelandii" /></p>
 
-<p>TODO We want to find what are the chemical intermediates TODO Eyring rate
-equation TODO Energy spectrum TODO Lowest energy not necessarily ideal
-(reference Ian Dance paper)</p>
+<p>The goal is to figure out what happens in between. In particular, we expect
+several stable intermediates to form in between</p>
+
+<ul>
+  <li>TODO We want to find what are the chemical intermediates</li>
+  <li>TODO Eyring rate
+equation</li>
+  <li>TODO Energy spectrum</li>
+  <li>TODO Lowest energy not necessarily ideal (reference Ian Dance paper)</li>
+</ul>
 
 <h3 id="quantum-chemistry-using-classical-computers">Quantum Chemistry using Classical Computers</h3>
 

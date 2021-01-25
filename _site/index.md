@@ -1,3 +1,5 @@
+# Investigating using VQE for FeMoco
+
 ## Introduction
 
 This post serves to aggregate what we learned from a three-month mentorship
@@ -16,6 +18,7 @@ a full grasp of the process for performing this simulation, and what roadblocks
 arise.  It is more of a pedagogical journey than a textbook -- you should feel
 free to skip sections as needed.  So without further ado...
 
+$$\require{mhchem}$$
 ## Problem Overview
 
 The purpose of this project was to calculate the ground state of various
@@ -47,14 +50,20 @@ can we scale this process to replace Haber-Bosch?
 
 ## Background Info
 
-To make this concrete -- we know that the reaction starts with N2 and FeMoco,
-and somehow ends up producing NH3 and FeMoco:
+To make this concrete -- we know that the reaction starts with $$N_2$$ binding
+with FeMoco, somewhere on the substrate, *some* process occurs, and $$NH_3$$
+leaves, with FeMoco itself unmodified:
 
-TODO N2 + Femoco -> intermediates -> NH3 + Femoco image in Azobacter vinelandii
+![A (simplified) process for nitrogen fixation in Azobacter vinelandii](./images/nitrogenase_catalysis.png)
 
-TODO We want to find what are the chemical intermediates TODO Eyring rate
-equation TODO Energy spectrum TODO Lowest energy not necessarily ideal
-(reference Ian Dance paper)
+The goal is to figure out what happens in between. In particular, we expect
+several stable intermediates to form in between 
+
+* TODO We want to find what are the chemical intermediates
+* TODO Eyring rate
+equation
+* TODO Energy spectrum
+* TODO Lowest energy not necessarily ideal (reference Ian Dance paper)
 
 ### Quantum Chemistry using Classical Computers
 
