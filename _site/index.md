@@ -1,5 +1,8 @@
 # Investigating using VQE for FeMoco
 
+**Note:** this page is heavily under-construction; you may wish to come back in
+a week or so.
+
 ## Introduction
 
 This post serves to aggregate what we learned from a three-month mentorship
