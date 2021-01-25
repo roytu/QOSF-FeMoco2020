@@ -456,7 +456,7 @@ TODO
 ## Footnotes
 
 [^qosf]: <https://qosf.org/qc_mentorship/>
-[^vesselin]: <TODO>
+[^vesselin]: <https://github.com/VGGatGitHub>
 [^spatzal]: <https://science.sciencemag.org/content/334/6058/940>
 [^cramer]: . Cramer SP, Hodgson KO, Gillum WO, Mortenson LE. J Am Chem Soc.
 [^bjornsson]: 1978;100:3398–3407. Bjornsson R, Neese F, Schrock RR, Einsle O, DeBeer S. The discovery of Mo(III) in FeMoco: reuniting enzyme and model chemistry. J Biol Inorg Chem. 2015;20(2):447-460. doi:10.1007/s00775-014-1230-6
