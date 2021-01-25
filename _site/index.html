@@ -72,7 +72,7 @@ have been possible.</p>
 <a href="https://en.wikipedia.org/wiki/FeMoco">FeMoco</a>, a cluster of molecules in nitrogenase.  The cluster is
 responsible for the nitrogenase enzyme’s remarkable ability to catalyze nitrogen
 fixation, so there is significant interest in accurately simulating this
-molecule.  We’ve structured this post to target someone who has /some/
+molecule.  We’ve structured this post to target someone who has <em>some</em>
 background in quantum computation and computational chemistry, but may not have
 a full grasp of the process for performing this simulation, and what roadblocks
 arise.  It is more of a pedagogical journey than a textbook – you should feel
@@ -87,26 +87,28 @@ derivatives of FeMoco, which is this molecule:</p>
 <p><img src="/images/ics.png" alt="FeMoco, the active cluster for nitrogen fixation in nitrogenase" /></p>
 
 <p>So what is this and why do we care? This is a cluster that appears in
-nitrogenase, an enzyme responsible for converting gaseous nitrogen (N2) to
-ammonia (NH3) in soil.  The ammonia is then used by plants to synthesize
+nitrogenase, an enzyme responsible for converting gaseous nitrogen ($\ce{N2}$) to
+ammonia ($\ce{NH3}$) in soil.  The ammonia is then used by plants to synthesize
 chlorophyll. This process (called nitrogen fixation) is a major bottleneck for
 plant growth, and therefore food production, and there are industrial processes
 that attempt to mimic this.  The Haber-Bosch process subjects gaseous nitrogen
 to high temperatures and pressures to break the triple-bond, and produces the
 majority of the nitrogen supply available to plants today.  However, generating
 this high-pressure environment is energy-expensive, and the Haber process
-consumes about 1-2% of the world’s energy production.  What’s /not/ understood
-is how nitrogenase can break the triple-bond of N2 at atmospheric temperatures
+consumes about 1-2% of the world’s energy production.  What’s <em>not</em> understood
+is how nitrogenase can break the triple-bond of $\ce{N2}$ at atmospheric temperatures
 and pressures.</p>
-
-<p>\(N_2 + 3H_2 \rightarrow 2NH_3 \quad (Haber process)\)
-<em>Haber process (energy-expensive)</em></p>
-
-<p>\(\ce{N2 + 16ATP + 8e- + 8H+ -&gt; 2NH3 + H2 + 16ADP + 16}\)
-<em>Nitrogenase-catalyzed nitrogen fixation</em></p>
 
 <p>This is the question: How does FeMoco <em>actually</em> catalyze nitrogen fixation, and
 can we scale this process to replace Haber-Bosch?</p>
+
+<hr />
+
+\[\ce{N2 + 3H2 -&gt; 2NH3} \tag{1}\label{1}\]
+
+\[\ce{N2 + 16ATP + 8e- + 8H+ -&gt; 2NH3 + H2 + 16ADP + 16} \tag{2}\label{2}\]
+
+<p><code class="language-plaintext highlighter-rouge">Ref: The Haber process (1) vs. nitrogenase-catalyzed nitrogen fixation (2)</code></p>
 
 <h2 id="background-info">Background Info</h2>
 
