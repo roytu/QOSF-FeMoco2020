@@ -5,20 +5,25 @@
     
     <meta charset="UTF-8">
 
-    <script type="text/x-mathjax-config">
-    MathJax.Hub.Config({
-        tex2jax: {
-            inlineMath: [ ['$','$'], ["\\(","\\)"] ],
-            processEscapes: true
+    <script>
+    MathJax = {
+        tex: {
+            inlineMath: [['$', '$'], ['\\(', '\\)']]
+            packages: {
+                    '[+]': ['braket']
+                    '[+]': ['mhchem']
+                }
+        },
+        loader: {
+            load: ['[tex]/braket', '[tex]/mhchem']
+        },
+        svg: {
+            fontCache: 'global'
         }
-    });
+    };
 </script>
-<script
-    type="text/javascript"
-    charset="utf-8"
-    src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"
->
-</script>
+<script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+<script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
 
 
 <!-- Begin Jekyll SEO tag v2.7.1 -->
@@ -78,7 +83,6 @@ a full grasp of the process for performing this simulation, and what roadblocks
 arise.  It is more of a pedagogical journey than a textbook – you should feel
 free to skip sections as needed.  So without further ado…</p>
 
-<p>\(\require{mhchem}\)</p>
 <h2 id="problem-overview">Problem Overview</h2>
 
 <p>The purpose of this project was to calculate the ground state of various
@@ -159,11 +163,15 @@ quantum computing side of this tale.</p>
 
 <h3 id="the-variational-principle">The Variational Principle</h3>
 
-<p>Variational principle is the basic reasoning behind the Variational Quantum Eigensolver algorithm (hence its name). Used also in quantum chemical calculations on conventional computers, this principle simply allows us to establish some trial wavefunctions, and each and every trial wavefunctions should follow this relation: <strong><em>E<sub>0</sub> &amp;leq; &lt; Ψ &amp;vert; H &amp;vert; Ψ &gt; / &lt; Ψ &amp;vert; Ψ &gt;</em></strong> . Of course when <strong><em>Ψ</em></strong> is exactly the solution of the Hamiltonian <strong><em>H</em></strong>, the equality condition is met. By using the variational principle, we can think of the complicated Hamiltonian problem into a search for global minima of the system.</p>
+<p>Variational principle is the basic reasoning behind the Variational Quantum Eigensolver algorithm (hence its name). Used also in quantum chemical calculations on conventional computers, this principle simply allows us to establish some trial wavefunctions, and each and every trial wavefunctions should follow this relation:</p>
+
+\[E_0 &lt; \frac{\bra{\Psi} H \ket{\Psi}}{\braket{\Psi \vert \Psi} }\]
+
+<p>Of course, when \(\Psi\) is exactly the solution of the Hamiltonian \(H\), the equality condition is met. By using the variational principle, we can think of the complicated Hamiltonian problem into a search for global minima of the system.</p>
 
 <h3 id="variational-quantum-eigensolver">Variational Quantum Eigensolver</h3>
 
-<p>Starting from the variational principle, VQE (Variational Quantum Eigensolver) pretty simply follows. This algorithm starts from some choice of initial wavefunction <strong><em>Ψ<sub>0</sub></em></strong> . Then, on a quantum device, the expectation value of the energy using this wavefunction, namely <strong><em>&lt;Ψ<sub>0</sub>&amp;vert;H&amp;vert;Ψ<sub>0</sub>&gt;</em></strong> is evaluated. Back on the classical device, the wavefunction is updated and the expectation is calculated iteratively to achieve the global minima. If the global minimum is found, variational principle allows us to conclude that this is the ground state and the expectation that was evaluated is the ground state energy.</p>
+<p>Starting from the variational principle, VQE (Variational Quantum Eigensolver) pretty simply follows. This algorithm starts from some choice of initial wavefunction \(\Psi_0\) . Then, on a quantum device, the expectation value of the energy using this wavefunction, namely \(\bra{\Psi_0} H \ket{\Psi_0}\) is evaluated. Back on the classical device, the wavefunction is updated and the expectation is calculated iteratively to achieve the global minima. If the global minimum is found, variational principle allows us to conclude that this is the ground state and the expectation that was evaluated is the ground state energy.</p>
 
 <h2 id="project-planning">Project Planning</h2>
 
