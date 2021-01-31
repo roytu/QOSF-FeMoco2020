@@ -193,6 +193,40 @@ corresponding VQE circuit.  Unfortunately, the freezing and removal steps are
 themselves non-trivial due to the memory requirements mentioned above, and
 require a proper analysis.
 
+## Memory Hacks to Handle Large Calculations
+
+During the mentorship program, we considered several options for running the
+code.  One option was to create a memory-optimized [EC2
+instance](https://aws.amazon.com/ec2/pricing/on-demand/).  An `r5.16xlarge`
+instance boasts 512 GiB of RAM, with 64 vCPUs.  Unfortunately, these get
+expensive fast (an `r5.16xlarge` instance currently runs for $4.032/hr).
+Smaller instances are not much more cost-efficient.
+
+Several online services exist for running code (such as Google's [Colab](https://colab.research.google.com/) and
+IBM's [Quantum Experience](https://quantum-computing.ibm.com/)), but none of
+these could gracefully handle the large memory allocations required.
+
+Our solution was to set up a new Ubuntu machine with a 500 GiB SSD drive, and
+create a 200 GiB swap file to simulate virtual memory.  This worked surprisingly
+well, with most calculations either finishing (or crashing) after only 2 hours.
+We were able to do this on a consumer-grade laptop (HP Envy m6).
+
+This is the script for generating the swap file (adapted from this [AskUbuntu
+post](https://askubuntu.com/posts/1075516/revisions)):
+
+```
+sudo swapoff /swapfile
+sudo rm  /swapfile
+sudo dd if=/dev/zero of=/swapfile bs=1M count=204800  # 200 GiB
+sudo chmod 600 /swapfile
+sudo mkswap /swapfile
+sudo swapon /swapfile
+```
+
+The actual laptop has only 8 GiB of RAM, but augmented with the swap file, we
+were able to perform calculations that required ~150 GiB of memory (as evaluated
+by monitoring `htop` output throughout the runs).
+
 ## Details on Qiskit / PySCF libraries
 
 In Qiskit-Aqua 0.8.1, freezing and reduction of orbitals is performed by the
@@ -276,25 +310,7 @@ N, N)`-dimensional numpy arrays representing the two-body tensor, where N is the
 number of spatial orbitals.  Each matrix represents a subsection of the full
 spin-orbital Fock space, in this way:
 
-```
-TODO better diagram
-
-       alpha              beta
-       ----------------> ---------------->
-     | -----------------------------------
-  a  | |                |                |
-  l  | |                |                |
-  p  | | mo_eri_ints    | mo_eri_ints_ba |
-  h  | |                |                |
-  a  v |                |                |
-       -----------------------------------
-  b  | |                |                |
-  e  | |                |                |
-  t  | | mo_eri_ints_ab | mo_eri_ints_bb |   (where mo_eri_ints_ab = mo_eri_ints_ba.transpose() )
-  a  | |                |                |
-     v |                |                |
-       -----------------------------------
-```
+![Full spin-space construction of two-body integrals](./images/h2_spin.png)
 
 `twoe_to_spin()` aggregates the spatial matrix into one large spin-orbital
 matrix, but in doing so doubles each of the 4 dimensions, resulting in a
@@ -427,17 +443,74 @@ and [`fermion_mode_elimination()`](https://qiskit.org/documentation/_modules/qis
 one after the other.  The code gets pretty hard to follow here; we'll attempt to
 describe the operations diagrammatically:
 
-TODO h2.png
+![Construction of H2 in Qiskit](./images/h2.png)
 
 First, `twoe_to_spin()` combines the four sub-integrals (`mo_eri_ints` and
 variants) into a single large 4-tensor (the diagram is 2-dimensional, but is
 intended to represent a 4-dimensional cube of sorts).  Some orbitals (in red)
-are simply deleted.  The rest of the elements are handled as follows:
+are simply deleted.  The rest of the elements are handled depending on what
+subspace they live in.  We split each coordinate $$i, j, k, l \in N_\text{frozen}$$
+into three distinct subspaces (see diagram):
 
-TODO h2_frozen.png
+1. **All-Frozen**: Cases where $$\phi_i$$, $$\phi_j$$, $$\phi_k$$, $$\phi_l$$
+   are all part of the frozen subspace.
+2. **Some-Frozen**: Cases where *some* orbitals $$\phi_i$$, $$\phi_j$$, $$\phi_k$$, $$\phi_l$$
+   are part of the frozen subspace, and some are not.
+3. **All-Unfrozen**: Cases where $$\phi_i$$, $$\phi_j$$, $$\phi_k$$, $$\phi_l$$
+   are all part of the unfrozen subspace.
 
+![H2 with "remove" orbitals deleted](./images/h2_frozen.png)
 
+The third subspace ("all-unfrozen") is the two-body array after the freezing
+step, so this is simply sliced into an output array.  The other two subspaces
+get removed, but not before contributing to the energy calculations:
 
+The **All-Frozen** orbitals contribute to a constant energy shift:
+
+```
+        ######## HANDLE FROZEN SUBSPACE ########
+        energy_shift = 0
+        for __i, __l in itertools.product(freeze_list, repeat=2):
+            # i == k, j == l, i != l:   energy -= h[ijlk]
+            # i == j, k == l, i != l:   energy += h[ijlk]
+            if __i == __l:
+                continue
+
+            energy_shift -= h2[__i, __l, __l, __i]
+            energy_shift += h2[__i, __i, __l, __l]
+```
+
+The **Some-Frozen** orbitals contribute to the one-body integrals:
+
+```
+        ######## HANDLE MID-FROZEN SUBSPACE ########
+        for x, y in itertools.product(nonfreeze_list, repeat=2):
+            for z in freeze_list:
+                h1[x, y] -= h2[z, x, y, z]
+                h1[x, y] += h2[z, z, x, y]
+                h1[x, y] += h2[x, y, z, z]
+                h1[x, y] -= h2[x, z, z, y]
+```
+
+The above functions come from our re-implementation of Qiskit's
+`fermion_mode_freezing()` code.  We run this against an $$\ce{LiH}$$ molecule and compare with the original Qiskit implementation to make sure our code correctly reproduces their calculations. Admittedly, we're not sure what the logic behind the code does.
+
+The primary motivation for our re-implementation was to perform the
+freezing/removal steps without generating the full two-body integral matrix
+(with shape $$(2N, 2N, 2N, 2N)$$). Our re-implementation should only carry over
+the $$(N, N, N, N)$$-shape matrices from PySCF, and reduces them within the
+context of their larger spin-spatial matrix.  In addition, by splitting up the
+frozen subspace, we reduce the number of loop iterations from $$(2N)^4$$ to
+$$N^2$$ for the frozen subspace and $$M^2 N$$ for the some-frozen subspace
+(where N is the number of frozen orbitals, and M is the number of non-frozen
+orbitals).  Our implementation can be found as the `construct_operator` function in
+[lib/qiskit/chemistry/fermionic_operator.py](https://github.com/roytu/QOSF-FeMoco2020/blob/main/lib/qiskit/chemistry/fermionic_operator.py).
+
+Unfortunately, the code still crashes for FeMoco. After the remove step, the
+code attempts to construct an array with shape $$(429, 429, 429, 429)$$.  This
+is because while our active space is quite small, the array before freezing is
+still quite large.  Ongoing work would be to interleave the freezing/reduction
+steps such that the largest array allocation scales with the active space only.
 
 ## Further Work
 
