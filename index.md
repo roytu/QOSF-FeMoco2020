@@ -1,8 +1,5 @@
 # Investigating using VQE for FeMoco
 
-**Note:** this page is heavily under-construction; you may wish to come back in
-a week or so.
-
 ## Introduction
 
 This post serves to aggregate what we learned from a three-month mentorship
@@ -649,13 +646,20 @@ TODO: expand more
 
 ## Footnotes
 
+### Referenced Papers
+
+[^bjornsson]: Bjornsson, Ragnar, et al. “The Discovery of Mo(III) in FeMoco: Reuniting Enzyme and Model Chemistry.” JBIC Journal of Biological Inorganic Chemistry, vol. 20, no. 2, Mar. 2015, pp. 447–60. Springer Link, doi:10.1007/s00775-014-1230-6.
+[^cramer]: Cramer, Stephen P., et al. “The Molybdenum Site of Nitrogenase. Preliminary Structural Evidence from x-Ray Absorption Spectroscopy.” Journal of the American Chemical Society, vol. 100, no. 11, May 1978, pp. 3398–407. DOI.org (Crossref), doi:10.1021/ja00479a023.
+[^dance]: Dance, Ian. “Computational Investigations of the Chemical Mechanism of the Enzyme Nitrogenase.” ChemBioChem, vol. 21, no. 12, June 2020, pp. 1671–709. DOI.org (Crossref), doi:10.1002/cbic.201900636.
+[^hoffman2014]: Hoffman, Brian M., et al. “Mechanism of Nitrogen Fixation by Nitrogenase: The Next Stage.” Chemical Reviews, vol. 114, no. 8, Apr. 2014, pp. 4041–62. DOI.org (Crossref), doi:10.1021/cr400641x.
+[^lowe]: Lowe, D. J., et al. “The Mechanism of Substrate Reduction by Nitrogenase.” Advances in Nitrogen Fixation Research, edited by C. Veeger and W. E. Newton, Springer Netherlands, 1984, pp. 133–38. DOI.org (Crossref), doi:10.1007/978-94-009-6923-0_46.
+[^montgomery]: Montgomery, Jason M., and David A. Mazziotti. “Strong Electron Correlation in Nitrogenase Cofactor, FeMoco.” The Journal of Physical Chemistry A, vol. 122, no. 22, June 2018, pp. 4988–96. DOI.org (Crossref), doi:10.1021/acs.jpca.8b00941.
+[^spatzal]: Spatzal, Thomas, et al. “Evidence for Interstitial Carbon in Nitrogenase FeMo Cofactor.” Science, vol. 334, no. 6058, Nov. 2011, pp. 940–940. science.sciencemag.org, doi:10.1126/science.1214025.
+
+### Other Links
+
 [^qosf]: <https://qosf.org/qc_mentorship/>
 [^vesselin]: <https://github.com/VGGatGitHub>
-[^spatzal]: Spatzal, Thomas, et al. “Evidence for Interstitial Carbon in Nitrogenase FeMo Cofactor.” Science, vol. 334, no. 6058, Nov. 2011, pp. 940–940. science.sciencemag.org, doi:10.1126/science.1214025.
-[^cramer]: Cramer, Stephen P., et al. “The Molybdenum Site of Nitrogenase. Preliminary Structural Evidence from x-Ray Absorption Spectroscopy.” Journal of the American Chemical Society, vol. 100, no. 11, May 1978, pp. 3398–407. DOI.org (Crossref), doi:10.1021/ja00479a023.
-[^bjornsson]: Bjornsson, Ragnar, et al. “The Discovery of Mo(III) in FeMoco: Reuniting Enzyme and Model Chemistry.” JBIC Journal of Biological Inorganic Chemistry, vol. 20, no. 2, Mar. 2015, pp. 447–60. Springer Link, doi:10.1007/s00775-014-1230-6.
 [^orca]: <https://orcaforum.kofo.mpg.de/>
 [^avogadro]: <https://avogadro.cc/>
-[^lowe]: Lowe, D. J., et al. “The Mechanism of Substrate Reduction by Nitrogenase.” Advances in Nitrogen Fixation Research, edited by C. Veeger and W. E. Newton, Springer Netherlands, 1984, pp. 133–38. DOI.org (Crossref), doi:10.1007/978-94-009-6923-0_46.
 [^mlk]: <https://en.wikipedia.org/w/index.php?curid=53339547>
-[^hoffman2014]: Hoffman, Brian M., et al. “Mechanism of Nitrogen Fixation by Nitrogenase: The Next Stage.” Chemical Reviews, vol. 114, no. 8, Apr. 2014, pp. 4041–62. DOI.org (Crossref), doi:10.1021/cr400641x.
