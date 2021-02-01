@@ -269,6 +269,31 @@ requirements to ~100 GiB.  However, the biggest simplification involved freezing
 and removing irrelevant orbitals.
 
 A converged ROHF run on FeMoco yields the orbitals in [src/rohf_results.txt#L126-L365](src/rohf_results.txt#L126-L365).
+Some values are reproduced here (with specific interest around the HOMO/LUMO
+boundary):
+
+```
+                Roothaan           | alpha              | beta
+MO #1   energy= -708.903766153917  | -708.903798633962  | -708.903733673875   occ= 2
+MO #2   energy= -264.444446482055  | -264.444517818457  | -264.444375145662   occ= 2
+MO #3   energy= -264.345016784318  | -264.345054607994  | -264.34497896065    occ= 2
+...
+MO #183 energy= 1.09643727514943   | 1.09558247583117   | 1.09663379258447    occ= 2
+MO #184 energy= 1.15899025544687   | 1.15743714310722   | 1.15858062143838    occ= 2
+MO #185 energy= 1.16711246404398   | 1.16589429999198   | 1.16715896522943    occ= 2
+MO #186 energy= 1.18261936022277   | 1.18129808152053   | 1.18212176959158    occ= 2
+MO #187 energy= 1.22330320933397   | 1.22199801236922   | 1.22299501002836    occ= 1
+MO #188 energy= 1.2363202894716    | 1.2343849951031    | 1.23544238639598    occ= 1
+MO #189 energy= 1.27706096612159   | 1.27667030808647   | 1.27735609940753    occ= 1
+MO #190 energy= 1.28677784728558   | 1.28619467360563   | 1.28681502511622    occ= 0
+MO #191 energy= 1.3421113567691    | 1.34116138068155   | 1.34187377923942    occ= 0
+MO #192 energy= 1.55165055468357   | 1.54823509661363   | 1.55081906199025    occ= 0
+MO #193 energy= 1.59990426957057   | 1.59727631058337   | 1.59942425523402    occ= 0
+...
+MO #237 energy= 3.94769134513469   | 3.94634168140072   | 3.94713711612319    occ= 0
+MO #238 energy= 3.95741060995661   | 3.95576782201872   | 3.95676428607888    occ= 0
+MO #239 energy= 4.11279420713629   | 4.11191594660041   | 4.11296781936671    occ= 0
+```
 
 This result was gathered by using PySCF's
 [`scf.analyze()`](https://sunqm.github.io/pyscf/scf.html#pyscf.scf.hf.SCF.analyze).
@@ -325,6 +350,8 @@ sudo swapon /swapfile
 The actual laptop has only 8 GiB of RAM, but augmented with the swap file, we
 were able to perform calculations that required ~150 GiB of memory (as evaluated
 by monitoring `htop` output throughout the runs).
+
+![An `htop` screenshot during a run of `examples/gen_qubit_op_femoco.py`](./images/htop.png)
 
 ### Details on Qiskit / PySCF libraries
 
@@ -624,12 +651,11 @@ TODO: expand more
 
 [^qosf]: <https://qosf.org/qc_mentorship/>
 [^vesselin]: <https://github.com/VGGatGitHub>
-[^spatzal]: <https://science.sciencemag.org/content/334/6058/940>
-[^cramer]: . Cramer SP, Hodgson KO, Gillum WO, Mortenson LE. J Am Chem Soc.
-[^bjornsson]: 1978;100:3398–3407. Bjornsson R, Neese F, Schrock RR, Einsle O, DeBeer S. The discovery of Mo(III) in FeMoco: reuniting enzyme and model chemistry. J Biol Inorg Chem. 2015;20(2):447-460. doi:10.1007/s00775-014-1230-6
+[^spatzal]: Spatzal, Thomas, et al. “Evidence for Interstitial Carbon in Nitrogenase FeMo Cofactor.” Science, vol. 334, no. 6058, Nov. 2011, pp. 940–940. science.sciencemag.org, doi:10.1126/science.1214025.
+[^cramer]: Cramer, Stephen P., et al. “The Molybdenum Site of Nitrogenase. Preliminary Structural Evidence from x-Ray Absorption Spectroscopy.” Journal of the American Chemical Society, vol. 100, no. 11, May 1978, pp. 3398–407. DOI.org (Crossref), doi:10.1021/ja00479a023.
+[^bjornsson]: Bjornsson, Ragnar, et al. “The Discovery of Mo(III) in FeMoco: Reuniting Enzyme and Model Chemistry.” JBIC Journal of Biological Inorganic Chemistry, vol. 20, no. 2, Mar. 2015, pp. 447–60. Springer Link, doi:10.1007/s00775-014-1230-6.
 [^orca]: <https://orcaforum.kofo.mpg.de/>
 [^avogadro]: <https://avogadro.cc/>
-[^lowe]: Lowe D.J., Thorneley R.N.F., Postgate J.R. (1984) The Mechanism of Substrate Reduction by Nitrogenase. In: Veeger C., Newton W.E. (eds) Advances in Nitrogen Fixation Research. Advances in Agricultural Biotechnology, vol 4. Springer, Dordrecht. https://doi.org/10.1007/978-94-009-6923-0_46
+[^lowe]: Lowe, D. J., et al. “The Mechanism of Substrate Reduction by Nitrogenase.” Advances in Nitrogen Fixation Research, edited by C. Veeger and W. E. Newton, Springer Netherlands, 1984, pp. 133–38. DOI.org (Crossref), doi:10.1007/978-94-009-6923-0_46.
 [^mlk]: <https://en.wikipedia.org/w/index.php?curid=53339547>
-[^hoffman2014]: Mechanism of Nitrogen Fixation by Nitrogenase: The Next Stage. Brian M. Hoffman, Dmitriy Lukoyanov, Zhi-Yong Yang, Dennis R. Dean, and Lance C. Seefeldt. Chemical Reviews 2014 114 (8), 4041-4062. DOI: 10.1021/cr400641x 
-
+[^hoffman2014]: Hoffman, Brian M., et al. “Mechanism of Nitrogen Fixation by Nitrogenase: The Next Stage.” Chemical Reviews, vol. 114, no. 8, Apr. 2014, pp. 4041–62. DOI.org (Crossref), doi:10.1021/cr400641x.
