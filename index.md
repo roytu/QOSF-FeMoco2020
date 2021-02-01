@@ -1,4 +1,4 @@
-# Investigating using VQE for FeMoco
+# Applying the Variational Quantum Eigensolver to the FeMo cofactor of nitrogenase
 
 ## Introduction
 
