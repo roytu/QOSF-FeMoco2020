@@ -203,7 +203,7 @@ uses [3U7Q](https://www.rcsb.org/structure/3u7q), a protein sample from
 nitrogenase in Azotobacter vinelandii. The 3D view confirms that this has the
 correct FeMoco cluster, labeled ICS 6496.
 
-![ICS 6496, from PDB:3U7Q](./images/ics.png)
+![ICS 6496, from PDB:3U7Q](./images/ics-3u7q.png)
 
 We extract the geometry of this cluster as [molecules/ICS.xyz](https://github.com/roytu/QOSF-FeMoco2020/blob/main/molecules/ICS.xyz), and run an ROHF calculation using PySCF, using STO-3G and iterating until convergence:
 
