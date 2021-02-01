@@ -26,8 +26,8 @@ derivatives of FeMoco, which is this molecule:
 ![FeMoco, the active cluster for nitrogen fixation in nitrogenase](./images/ics.png)
 
 So what is this and why do we care? This is a cluster that appears in
-nitrogenase, an enzyme responsible for converting gaseous nitrogen ($\ce{N2}$) to
-ammonia ($\ce{NH3}$) in soil.  The ammonia is then used by plants to synthesize
+nitrogenase, an enzyme responsible for converting gaseous nitrogen ($$\ce{N2}$$) to
+ammonia ($$\ce{NH3}$$) in soil.  The ammonia is then used by plants to synthesize
 chlorophyll. This process (called nitrogen fixation) is a major bottleneck for
 plant growth, and therefore food production, and there are industrial processes
 that attempt to mimic this.  The Haber-Bosch process subjects gaseous nitrogen
