@@ -35,7 +35,7 @@ to high temperatures and pressures to break the triple-bond, and produces the
 majority of the nitrogen supply available to plants today.  However, generating
 this high-pressure environment is energy-expensive, and the Haber process
 consumes about 1-2% of the world's energy production.  What's *not* understood
-is how nitrogenase can break the triple-bond of $\ce{N2}$ at atmospheric temperatures
+is how nitrogenase can break the triple-bond of $$\ce{N2}$$ at atmospheric temperatures
 and pressures.
 
 This is the question: How does FeMoco *actually* catalyze nitrogen fixation, and
