@@ -55,20 +55,44 @@ $$\ce{N2 + 16ATP + 8e- + 8H+ -> 2NH3 + H2 + 16ADP + 16} \tag{2}\label{2}$$
 
 ## Background Info
 
-To make this concrete -- we know that the reaction starts with $$N_2$$ binding
-with FeMoco, somewhere on the substrate, *some* process occurs, and $$NH_3$$
+To make this concrete -- we know that the reaction starts with $$\ce{N2}$$ binding
+with FeMoco, somewhere on the substrate, *some* process occurs, and $$\ce{NH3}$$
 leaves, with FeMoco itself unmodified:
 
 ![A (simplified) process for nitrogen fixation in Azobacter vinelandii](./images/nitrogenase_catalysis.png)
 
 The goal is to figure out what happens in between. In particular, we expect
-several stable intermediates to form in between 
+several stable intermediates, $$x_n$$, to form during the reaction:
 
-* TODO We want to find what are the chemical intermediates
-* TODO Eyring rate
-equation
-* TODO Energy spectrum
-* TODO Lowest energy not necessarily ideal (reference Ian Dance paper)
+$$\ce{N2 -> x1 -> x2 -> ... -> NH3}$$
+
+Each intermediate will have some ground state energy, $$E(x_n)$$.  The
+differences between the ground states, $$\Delta H(x_n) = E(x_n) -
+E(x_{n-1})$$, determine the rate of the reaction by the Eyring rate equation:
+
+$$k = \frac{\kappa k_\mathrm{B}T}{h} \mathrm{e}^{\frac{\Delta S^\ddagger}{R}} \mathrm{e}^{-\frac{\Delta H^\ddagger}{RT}}$$
+
+Note that this rate is proportional to $$\exp(-\Delta H / RT)$$, so large jumps
+in energy get exponentially punished.  Additionally, energy values for FeMoco
+live on the order of 10,000 hartrees ([^montgomery]), so to achieve chemical
+accuracy (errors under 1 millihartree) require 7-8 significant figures of
+precision.  This precision requirement is what we need to overcome in order to
+properly assess the likelihood of nitrogenase reactions.
+
+One final note -- it is not necessarily true that intermediates involving low
+energy states will be more likely.  See the following quote from (Dance, 2019)[^dance]:
+
+```
+An implicit assumption of theoretical calculations is that the structure with lowest calculated energy
+is the most likely to occur. Thus, in searches for intermediates in the nitrogenase mechanism, the
+lowest energy structure found for each composition is often accepted as such. This targeting of the
+lowest energy calculated structures has led some investigators into unusual domains of chemical
+mechanism. This could be insightful, particularly for the complexities of catalysis at FeMo-co, but
+it could also be misleading. A lowest energy structure could be a deep thermodynamic sink for that
+composition, and therefore to be avoided because a general tenet of catalysis is avoidance of
+unescapable thermodynamic sinks. The broad objective is to find an energy surface that is
+relatively flat and trends downhill, keeping away from highs (kinetic barriers) and lows (dead ends).
+```
 
 ### Quantum Chemistry using Classical Computers
 
@@ -88,7 +112,7 @@ simulate with DFT using basis sets that are detailed enough, even with clever
 choice of the functionals. Because our aim is to pedagogically explore the steps
 as if we had the resources to complete the simulation on conventional and
 quantum computers, the simple *(and fictitious)* complex of
-Fe<sub>2</sub>S<sub>2</sub>, which comprises the core of FeMoco, was used as a
+$$\ce{Fe2S2}$$, which comprises the core of FeMoco, was used as a
 model system. Using Orca[^orca] and Avogadro[^avogadro], starting from initial
 geometries deposited from crystallography, geometry optimization can be
 performed using the functionals and basis sets (TPSSh and def2-TZVPP in our run)
@@ -102,7 +126,7 @@ quantum computing side of this tale.
 
 Variational principle is the basic reasoning behind the Variational Quantum Eigensolver algorithm (hence its name). Used also in quantum chemical calculations on conventional computers, this principle simply allows us to establish some trial wavefunctions, and each and every trial wavefunctions should follow this relation:
 
-$$E_0 < \frac{\bra{\Psi} H \ket{\Psi}}{\braket{\Psi \vert \Psi} }$$
+$$E_0 \leq \frac{\bra{\Psi} H \ket{\Psi}}{\braket{\Psi \vert \Psi} }$$
 
 Of course, when $$\Psi$$ is exactly the solution of the Hamiltonian $$H$$, the equality condition is met. By using the variational principle, we can think of the complicated Hamiltonian problem into a search for global minima of the system. 
 
