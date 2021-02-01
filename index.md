@@ -644,6 +644,20 @@ Although our approach to this problem has been largely pedagogical, it reveals w
 
 TODO: expand more
 
+## Special Thanks
+
+Special thanks to [Vesselin](https://www.linkedin.com/in/vgg-consulting/) for
+providing guidance throughout this project, [Michał Stęchły](https://www.mustythoughts.com/) for organizing the
+mentorship program, and the rest of the folks at the [Quantum Open Software Foundation](qosf.org)
+for their work in enabling free and open-source research for quantum computing.
+
+## Contact Info
+
+Questions? Reach us at:
+
+* Roy Tu (kroytu [at] berkeley [dot] edu)
+* [Minsik Cho](http://linkedin.com/in/chominsik)
+
 ## Footnotes
 
 [^bjornsson]: Bjornsson, Ragnar, et al. “The Discovery of Mo(III) in FeMoco: Reuniting Enzyme and Model Chemistry.” JBIC Journal of Biological Inorganic Chemistry, vol. 20, no. 2, Mar. 2015, pp. 447–60. Springer Link, doi:10.1007/s00775-014-1230-6.

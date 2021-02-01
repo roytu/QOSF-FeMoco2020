@@ -1,7 +1,7 @@
 title:
-  Investigating using VQE for FeMoco
+  Applying the Variational Quantum Eigensolver to the FeMo cofactor of nitrogenase
 description:
-  Project for the QOSF mentorship program investigating the FeMo cofactor of nitrogenase 
+  A project for the QOSF Mentorship Program (Winter 2020).
 plugins:
     - jekyll
     - jekyll-seo-tag
