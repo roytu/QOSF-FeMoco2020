@@ -55,6 +55,8 @@ $$\ce{N2 + 16ATP + 8e- + 8H+ -> 2NH3 + H2 + 16ADP + 16} \tag{2}\label{2}$$
 
 ## Background Info
 
+### Determining the Likelihood of Chemical Reaction Pathways
+
 To make this concrete -- we know that the reaction starts with $$\ce{N2}$$ binding
 with FeMoco, somewhere on the substrate, *some* process occurs, and $$\ce{NH3}$$
 leaves, with FeMoco itself unmodified:
@@ -93,6 +95,38 @@ composition, and therefore to be avoided because a general tenet of catalysis is
 unescapable thermodynamic sinks. The broad objective is to find an energy surface that is
 relatively flat and trends downhill, keeping away from highs (kinetic barriers) and lows (dead ends).
 ```
+
+### A Schematic for the $$\ce{N2 -> NH3}$$ Reaction: The Thorneley-Lowe Model
+
+Experimental studies on the reaction mechanism have not been able to isolate any
+intermediates.  However, kinetic measurements on FeMoco provide a schematic for
+what a reaction pathway must look like.  The Thorneley-Lowe model was first
+published in 1984[^lowe], and a simplified version is shown below:[^lowe]
+
+![Lowe-Thorneley Kinetic Model](https://upload.wikimedia.org/wikipedia/en/a/a0/Lowe-Thorneley_Kinetic_Model.jpg)
+
+** Ref: By Mlk803 - Chemdraw, CC BY-SA 4.0 **
+[^mlk]
+
+FeMoco ($$\ce{Fe7MoS9C}$$) starts as $$E_0$$.  It collects four electrons and
+four protons before reaching the $$E_4$$ state (also called the "Janus" state).
+The general consensus is that these electrons and protons exist as bridging
+hydrides between two $$\ce{Fe}$$ atoms (see the diagram below[^hoffman2014] for
+four such candidate states):
+
+![Candidates for the "Janus" state](./images/hoffman2014.png)
+
+The remainder of the reaction remains largely unknown, but diverge into either
+"distal" or "alternating" pathways (see Hoffman, 2014 [^hoffman2014] for more
+information).
+
+### Candidate Reaction Mechanisms
+
+In light of the Thorneley-Lowe kinetic model, several candidate reaction
+mechanisms exist that fit this description.  They are described in detail in
+Dance, 2019 [^dance]. They are outside of the scope of our understanding, but a
+major goal of this project will eventually be to calculate energies of some of the
+intermediates of these reaction pathways.  Further work needs to be done.
 
 ### Quantum Chemistry using Classical Computers
 
@@ -134,15 +168,30 @@ Of course, when $$\Psi$$ is exactly the solution of the Hamiltonian $$H$$, the e
 
 Starting from the variational principle, VQE (Variational Quantum Eigensolver) pretty simply follows. This algorithm starts from some choice of initial wavefunction $$\Psi_0$$ . Then, on a quantum device, the expectation value of the energy using this wavefunction, namely $$\bra{\Psi_0} H \ket{\Psi_0}$$ is evaluated. Back on the classical device, the wavefunction is updated and the expectation is calculated iteratively to achieve the global minima. If the global minimum is found, variational principle allows us to conclude that this is the ground state and the expectation that was evaluated is the ground state energy.
 
-## Project Planning
+## Project Outline
 
-TODO
+Above, we provide the essential background information to understand the problem
+of finding reaction mechanisms for FeMoco-catalyzed nitrogen fixation, as well
+as what we know from classical chemistry techniques.  The aim of this project is
+applying the variational quantum eigensolver to FeMoco intermediates, in order
+to calculate the ground state energies to millihartree accuracy.  Our strategy
+for this is outlined below:
 
-1. Run SCF on FeMoco
-2. Generate Hamiltonian
-3. Run VQE on hamiltonian
+1. First, run SCF on the simplest FeMoco state, $$E_0 = \ce{Fe7MoS9C}$$.
+2. Generate the fermionic operator for the second-order electronic Hamiltonian
+   of the result.
+3. Freeze and reduce certain orbitals, to reduce calculational load.
+4. Use a qubit mapping (Bravyi-Kitaev or Jordan-Wigner) to map the fermionic
+   operator to a qubit operator.
+5. Convert the qubit operator into a VQE circuit, to be run on NISQ devices.
 
-## Extracting the Molecule / Defining the Fock Space
+As of the time of this writing, we were able to complete Step 1 (using an STO-3G
+basis), and made progress on Steps 2-3 (described below).  Steps 4-5 remain as
+future work.
+
+The remainder of this post describes progress made for Steps 1-3.
+
+### Extracting the Molecule / Defining the Fock Space
 
 The first step in analyzing the molecule is, naturally, to find the geometry for
 it. The first structural models appeared in 1978[^cramer], with the six-atom
@@ -157,14 +206,44 @@ uses [3U7Q](https://www.rcsb.org/structure/3u7q), a protein sample from
 nitrogenase in Azotobacter vinelandii. The 3D view confirms that this has the
 correct FeMoco cluster, labeled ICS 6496.
 
-TODO add image of ICS 6496
+![ICS 6496, from PDB:3U7Q](./images/ics.png)
 
+We extract the geometry of this cluster as [molecules/ICS.xyz](https://github.com/roytu/QOSF-FeMoco2020/blob/main/molecules/ICS.xyz), and run an ROHF calculation using PySCF, using STO-3G and iterating until convergence:
 
-### Sidenote : Hartree-Fock vs. CASSCF
+```
+driver = PySCFDriver(atom=convert_g_to_str(g),
+                     unit=UnitsType.ANGSTROM,
+                     charge=-1,
+                     spin=3,
+                     max_cycle=5000,
+                     max_memory=1024 * 128,
+                     basis='sto3g'
+                     )
+molecule = driver.run()
+```
 
-TODO
+The charge and spin values were determined from the literature: it is believed
+that FeMoco has charge/spin values ($$Q = 1$$ and $$S = 3/2$$).
 
-## Generating the Hamiltonian
+You may notice that a few optimizations are made here:
+
+* ROHF (or Restricted Open Hartree-Fock) restricts the wave function to be a
+single Slater determinant.  This is very unlikely to properly describe 
+transition metal complexes such as FeMoco.  Post-Hartree Fock techniques such as
+CASSCF or MRCI should be considered.
+* STO-3G is a basis that approximates each Slater-type orbitals as a sum of
+  three Gaussians.  This drastically speeds up calculations at the expense of
+accuracy.  More accurate basis sets (such as 6-31G) should be considered.
+
+These are very real issues, and further work needs to be done to address this
+before the results can be taken seriously.  Nevertheless, we were able to
+successfully run an ROHF procedure on FeMoco, saved as an `.hdf5` file.
+Unfortunately, this file was too large to store in GitHub (~52 GiB).  Feel free
+to contact us if you would like the file (although we suggest generating the
+file yourself -- on a consumer-grade laptop the calculation took about 2
+hours).
+
+### Generating the Hamiltonian
 
 This is the step that seemed easy at the outset of the project, but we
 ultimately didn't give enough respect to -- most of the three months were spent
@@ -189,11 +268,7 @@ There are a few simplifications we can make.  The first one we tried was using
 requirements to ~100 GiB.  However, the biggest simplification involved freezing
 and removing irrelevant orbitals.
 
-A converged ROHF run on FeMoco yields the following orbitals:
-
-```
-TODO orbital energies
-```
+A converged ROHF run on FeMoco yields the orbitals in [src/rohf_results.txt#L126-L365](src/rohf_results.txt#L126-L365).
 
 This result was gathered by using PySCF's
 [`scf.analyze()`](https://sunqm.github.io/pyscf/scf.html#pyscf.scf.hf.SCF.analyze).
@@ -217,7 +292,7 @@ corresponding VQE circuit.  Unfortunately, the freezing and removal steps are
 themselves non-trivial due to the memory requirements mentioned above, and
 require a proper analysis.
 
-## Memory Hacks to Handle Large Calculations
+### Memory Hacks to Handle Large Calculations
 
 During the mentorship program, we considered several options for running the
 code.  One option was to create a memory-optimized [EC2
@@ -251,7 +326,7 @@ The actual laptop has only 8 GiB of RAM, but augmented with the swap file, we
 were able to perform calculations that required ~150 GiB of memory (as evaluated
 by monitoring `htop` output throughout the runs).
 
-## Details on Qiskit / PySCF libraries
+### Details on Qiskit / PySCF libraries
 
 In Qiskit-Aqua 0.8.1, freezing and reduction of orbitals is performed by the
 [FermionicTransformation](https://qiskit.org/documentation/stubs/qiskit.chemistry.transformations.FermionicTransformation.html) class.
@@ -545,11 +620,6 @@ Although our approach to this problem has been largely pedagogical, it reveals w
 
 TODO: expand more
 
-## Useful Papers
-
-TODO
-
-
 ## Footnotes
 
 [^qosf]: <https://qosf.org/qc_mentorship/>
@@ -559,3 +629,7 @@ TODO
 [^bjornsson]: 1978;100:3398–3407. Bjornsson R, Neese F, Schrock RR, Einsle O, DeBeer S. The discovery of Mo(III) in FeMoco: reuniting enzyme and model chemistry. J Biol Inorg Chem. 2015;20(2):447-460. doi:10.1007/s00775-014-1230-6
 [^orca]: <https://orcaforum.kofo.mpg.de/>
 [^avogadro]: <https://avogadro.cc/>
+[^lowe]: Lowe D.J., Thorneley R.N.F., Postgate J.R. (1984) The Mechanism of Substrate Reduction by Nitrogenase. In: Veeger C., Newton W.E. (eds) Advances in Nitrogen Fixation Research. Advances in Agricultural Biotechnology, vol 4. Springer, Dordrecht. https://doi.org/10.1007/978-94-009-6923-0_46
+[^mlk]: <https://en.wikipedia.org/w/index.php?curid=53339547>
+[^hoffman2014]: Mechanism of Nitrogen Fixation by Nitrogenase: The Next Stage. Brian M. Hoffman, Dmitriy Lukoyanov, Zhi-Yong Yang, Dennis R. Dean, and Lance C. Seefeldt. Chemical Reviews 2014 114 (8), 4041-4062. DOI: 10.1021/cr400641x 
+
